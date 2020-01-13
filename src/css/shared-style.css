@@ -1,0 +1,20 @@
+html, body {
+    height: 100%;
+  }
+
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.cardHoverHighlight:hover {
+  background: rgb(242, 242, 242);
+}

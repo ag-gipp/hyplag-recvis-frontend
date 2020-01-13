@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title id="project-title"></title>
+
+    <!-- Shared Styling -->
+    <link rel="stylesheet" type="text/css" href="./css/shared-style.css">
+    
+    <!-- Hyplag Overview Necessary Imports -->
+    <link rel="stylesheet" type="text/css" href="./css/overview/style.css">
+    <link rel="stylesheet" href="./css/overview/external/jquery-ui.min.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Lato|Lato+Black' rel='stylesheet'>
+    
+    <script src="./js/overview-lib/external/d3.v5.js"></script>
+    <script src="./js/overview-lib/external/jquery-ui.min"></script>
+    <script src="./js/overview-lib/external/jquery.fittext.js"></script>
+    <script src="./js/overview-lib/external/resize/ResizeSensor.js"></script>
+    <script src="./js/overview-lib/external/resize/ElementQueries.js"></script>
+    
+        <script src="./js/config.js"></script>
+        <script src="./js/overview-lib/view/RightPanel.js"></script>
+        <script src="./js/overview-lib/view/LeftPanel.js"></script>
+        <script src="./js/overview-lib/view/OverlayerPanel.js"></script>
+        <script src="./js/overview-lib/view/AdvancedConfigWidget.js"></script>
+        <script src="./js/overview-lib/view/MapLegend.js"></script>
+
+        <script src="./js/shared/MathUtilities.js"></script>
+        <script src="./js/shared/UtilitiesLibrary.js"></script>
+        <script src="./js/shared/RecvizLocalStorage.js"></script>
+        <script src="./js/shared/BackendApi.js"></script>
+
+        <script src="./js/overview-lib/SimilarityNodesSimulation.js"></script>
+        <script src="./js/overview-lib/DocumentMap.js"></script>
+        <script src="./js/overview-lib/OverviewUI.js"></script>
+        <script src="./js/overview-lib/HyplagRecvizModel.js"></script>
+        <script src="./js/overview.js"></script>
+
+        <!-- Add icon library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Hyplag Overview Necessary Imports End -->
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#" id="project-brand"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item" aria-current="page"><a href="/dashboard.html">Dashboard</a></li>
+            <li class="breadcrumb-item" aria-current="page" id="breadcrumb-folder-name"></li>
+            <li class="breadcrumb-item active" aria-current="page" id="breadcrumb-file-name"></li>
+        </ol>
+    </nav>
+
+    <div id="body-page-infobox" class="alert d-none" role="alert">
+        This is an info box.
+    </div>
+
+    <!-- Hyplag Overview Body Start -->
+        <div id="hyplag-wrapper">
+            <div class="FlexFrame">
+                <div id="left-panel" class="unselectable FlexContainer">
+                    <div class="panel-inner-container" id="left-panel-inner-container">
+                        <div class="common-component-styling source-document-component">
+                            <div class="component-header">
+                                <p>SOURCE DOCUMENT</p>
+                            </div>
+                            <div class="component-body">
+                                <div class="source-document-item">
+                                    <h2><span class="title-background">Title</span></h2>
+                                    <p id="source-document-title"></p>
+                                </div>
+                                <div class="source-document-item">
+                                    <h2><span class="title-background">Authors</span></h2>
+                                    <p id="source-document-authors"></p>
+                                </div>
+                                <div class="source-document-item">
+                                    <h2><span class="title-background">Venue</span></h2>
+                                    <p id="source-document-venue"></p>
+                                </div>
+                                <div class="source-document-item">
+                                    <h2><span class="title-background">Year</span></h2>
+                                    <p id="source-document-year"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-component-styling collected-documents-component">
+                            <div class="component-header">
+                                <p>COLLECTED DOCUMENTS</p>
+                            </div>
+                            <div class="component-body">
+                                <div id="collected-documents-list">
+                                </div>
+                                <div id="collected-document-list-control">
+                                    <button type="button" class="button" id="collected-doc-compare">Compare</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-seperator">   
+                </div>
+                <div id="left-collapse-button">
+                    <div class="collapse-icon-container">
+                        <img src="./image/overview/down-chevron.png" alt="drop down button" class="rotate-90-degrees collapse-icon" id="left-panel-collapse-arrow">
+                    </div>
+                </div>
+                
+                <div id="hyplag-map" class="FlexContainer">
+                    <div id="hyplag-map-overlay"></div>
+                </div>
+                
+                <div class="panel-seperator">
+                </div>
+                <div id="right-collapse-button">
+                    <div class="collapse-icon-container">
+                        <img src="./image/overview/down-chevron.png" alt="drop down button" class="rotate-270-degrees collapse-icon" id="right-panel-collapse-arrow">
+                    </div>
+                </div>
+                
+                <div id="right-panel" class="unselectable FlexContainer">
+                    <div id="right-panel-inner-container" >
+                        <div class="common-component-styling similarity-config-component">
+                            <div class="component-header">
+                                <p>VISIBILITY THRESHOLD</p>
+                            </div>
+                            <div class="component-body">
+                                <div class="similarity-threshold-element">
+                                    <div class="range-control">
+                                        <input type="range" min="0" max="100" value="100" class="slider" id="visibilityRange" name="visibilityRange">
+                                        <output name="rangeVal">1</output>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                        <div class="common-component-styling similarity-weight-component">
+                            <div class="component-header">
+                                <p>SIMILARITY WEIGHTS</p>
+                            </div>
+                            <div class="component-body">
+                                <div>
+                                    <div class="similarity-weight-element">
+                                        <h1><span class="title-background">Text</span></h1>
+                                        <div class="range-control">
+                                            <input type="range" min="1" max="100" value="100" class="slider" id="textRange" name="textRange">
+                                            <output name="rangeVal">1</output>
+                                        </div>
+                                        <div class="drop-down-icon-container">
+                                            <img src="./image/overview/down-chevron.png" alt="drop down button" class="drop-down-config-icon" id="textRange-dropdown-icon">
+                                        </div>
+                                        <div class="drop-down-config-box" style="display: none;" id="textRange-dropdown-box">
+                                            </div>
+                                        </div>
+                                        <div class="similarity-weight-element">
+                                        <h1><span class="title-background">Citation</span></h1>
+                                        <div class="range-control">
+                                            <input type="range" min="1" max="100" value="100" class="slider" id="citationRange">
+                                            <output name="rangeVal">1</output>
+                                        </div>
+                                        <div class="drop-down-icon-container">
+                                            <img src="./image/overview/down-chevron.png" alt="drop down button" class="drop-down-config-icon" id="citationRange-dropdown-icon">
+                                        </div>
+                                    </div>
+                                    <div class="similarity-weight-element">
+                                        <h1><span class="title-background">Image</span></h1>
+                                        <div class="range-control">
+                                            <input type="range" min="1" max="100" value="100" class="slider" id="imageRange">
+                                            <output name="rangeVal">1</output>
+                                        </div>
+                                        <div class="drop-down-icon-container">
+                                            <img src="./image/overview/down-chevron.png" alt="drop down button" class="drop-down-config-icon" id="imageRange-dropdown-icon">
+                                        </div>
+                                    </div>
+                                    <div class="similarity-weight-element">
+                                        <h1><span class="title-background">Formula</span></h1>
+                                        <div class="range-control">
+                                            <input type="range" min="1" max="100" value="100" class="slider" id="formulaRange">
+                                            <output name="rangeVal">1</output>
+                                        </div>
+                                        <div class="drop-down-icon-container">
+                                            <img src="./image/overview/down-chevron.png" alt="drop down button" class="drop-down-config-icon" id="formulaRange-dropdown-icon">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="button" id="button-save-weight">Save Weights</button>
+                            </div>
+                        </div>
+                        
+                        <div class="common-component-styling similarity-weight-selection-component">
+                            <div class="component-header">
+                                <p>SIMILARITY WEIGHT SELECTION</p>
+                            </div>
+                            <div class="component-body">
+                                <h1>Research Discipline Weights</h1>
+                                <div class="weight-selection-choice-list" id="research-discipline-choice-list">
+                                    <div class="weight-selection-choice-div">
+                                    </div>
+                                </div>
+                                
+                                <h1>Custom Weights </h1>
+                                <div class="weight-selection-choice-list" id="custom-weightset-choice-list">
+                                    <div class="weight-selection-choice-div">
+                                        <label>
+                                            <input type="radio" id="radio-custom" name="weight-selection" value="Custom" checked>
+                                            <i>Custom</i>
+                                        </label>
+                                    </div>
+                                    <div id="weight-selection-control-div">
+                                        <button class="button small-button" id="button-weight-edit"><i class="fa fa-edit"></i></button>
+                                        <button class="button small-button" id="button-weight-delete"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Hyplag Overview Body End -->
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+
+</html>
