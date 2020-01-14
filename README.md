@@ -5,10 +5,13 @@
 
 ## Screenshots from RecVis
 - The user interface is developed using standard web development technologies such as HTMl, Javascript, CSS and Bootstrap. Following is the welcome page of RecVis.
+![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-welcome-page.png?raw=true)
 
 - User dashboard.
+![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-folders.png?raw=true)
 
 - Visualization of recommended literature. Visualization of the data is created using D3.js.
+![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-overview.png?raw=true)
 
 ## Deployment/Development
 ### Configuration of front-end.
@@ -36,4 +39,4 @@
 - RecVis Tiny Scholar API (Currently Required by RecVis Backend): https://github.com/ag-gipp/hyplag-recvis-tiny-scholar-api
 
 ## Credits
-- This project is developed by Data & Knowledge Engineering Group: https://dke.uni-wuppertal.de/de.html
+- This project is developed by [Data & Knowledge Engineering Group](https://dke.uni-wuppertal.de/de.html "Data & Knowledge Engineering Group Web Page")
