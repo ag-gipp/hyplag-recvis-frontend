@@ -5,15 +5,18 @@
 
 ## Screenshots from RecVis
 - The user interface is developed using standard web development technologies such as HTMl, Javascript, CSS and Bootstrap. Following is the welcome page of RecVis.
+
 ![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-welcome-page.png?raw=true)
 
 - User dashboard.
+
 ![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-folders.png?raw=true)
 
 - Visualization of recommended literature. Visualization of the data is created using D3.js.
+
 ![alt text](https://github.com/ag-gipp/hyplag-recvis-frontend/blob/master/images/recvis-overview.png?raw=true)
 
-## Deployment/Development
+## Deployment/Development of RecVis Front-end
 ### Configuration of front-end.
 - cd /path/to/repo
 - cd src/js/
