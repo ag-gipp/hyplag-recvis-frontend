@@ -1,7 +1,7 @@
 # recviz-frontend
 
 ## About RecVis
-- RecVis project provides a novel approach to discover scientific literature based on Hyplag.org open source project. Users are able to discover relevant papers based on only given input academic paper. RecVis will recommend similar literature and will provide a visualization with custimizable weights for filtering out most relavent papers.
+- RecVis project provides a novel approach to discover scientific literature based on Hyplag.org open source project. Users are able to discover relevant papers based on only given input academic paper. RecVis will recommend similar literature and will provide a visualization with customizable weights for filtering out most relavent papers.
 
 ## Screenshots from RecVis
 - The user interface is developed using standard web development technologies such as HTMl, Javascript, CSS and Bootstrap. Following is the welcome page of RecVis.
