@@ -32,6 +32,7 @@
 
 ### Running website using http-server tool.
 - cd /path/to/repo
+- cd src
 - http-server ./ -p 3000
 
 ### Accessing to the website
