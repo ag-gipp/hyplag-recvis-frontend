@@ -1,6 +1,29 @@
 #detailed-view-wrapper {
     height: 80vh;
     margin: 20px;
-    background: red;
     border-radius: 5px;
+}
+
+.navigation{
+    background-color: #cccccc;
+}
+
+.navigation > .dropdown > button {
+    background-color: white;
+    color: black;
+    border: 1px solid;
+    box-shadow: none;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active,  .show > .btn-secondary.dropdown-toggle{
+    background-color: white;
+    color: black;
+}
+
+.nav-pills > .nav-item > a {
+    color: black;
+}
+.nav-pills > .nav-item > .active{
+    background-color: #e5e5e5;
+    color: black;
 }

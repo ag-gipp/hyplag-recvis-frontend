@@ -17,6 +17,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
     if(isTokenExists) {
         const authToken = recvizLocalStorage.getAuthToken();        
         const queryParams = utilityLib.getAllUrlParams();
+        const errorHandler = (error) => {
+            if(error === "token expired") {
+                recvizLocalStorage.clearToken();
+                window.location.replace("/login.html");
+            } else {
+                utilityLib.informUser("alert-danger", error);
+            }
+        };
 
         if(queryParams && queryParams.folderid && queryParams.fileid && queryParams.sourcedoc && queryParams.targetdoc) {
             const folderId = queryParams.folderid;
@@ -43,74 +51,50 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     console.log("Sourcedoc "+sourcedoc+" and Targetdoc "+targetdoc+" Comparison Data: ");
                     console.log(comparisonData);
                 } else {
-                    if(err == "token expired") {
-                        recvizLocalStorage.clearToken();
-                        window.location.replace("/login.html");
-                    } else {
-                        utilityLib.informUser("alert-danger", err);
-                    }
+                    errorHandler(err);
                 }
-            })
+            });
 
             backendApi.fetchDocumentFullData(authToken, sourcedoc, function(err, fullDocData){
                 if(!err) {
                     console.log("SOURCE DOC DOCUMENT FULL DATA:");
                     console.log(fullDocData);
                 } else {
-                    if(err == "token expired") {
-                        recvizLocalStorage.clearToken();
-                        window.location.replace("/login.html");
-                    } else {
-                        utilityLib.informUser("alert-danger", err);
-                    }
+                   errorHandler(err);
                 }
-            })
+            });
 
             backendApi.fetchDocumentFullData(authToken, targetdoc, function(err, fullDocData){
                 if(!err) {
                     console.log("TARGET DOC DOCUMENT FULL DATA:");
                     console.log(fullDocData);
                 } else {
-                    if(err == "token expired") {
-                        recvizLocalStorage.clearToken();
-                        window.location.replace("/login.html");
-                    } else {
-                        utilityLib.informUser("alert-danger", err);
-                    }
+                    errorHandler(err);
                 }
-            })
+            });
 
             backendApi.fetchDocumentMetadata(authToken, sourcedoc, function(err, metadata){
                 if(!err) {
                     console.log("SOURCE DOC METADATA:");
                     console.log(metadata);
                 } else {
-                    if(err == "token expired") {
-                        recvizLocalStorage.clearToken();
-                        window.location.replace("/login.html");
-                    } else {
-                        utilityLib.informUser("alert-danger", err);
-                    }
+                    errorHandler(err);
                 }
-            })
+            });
 
             backendApi.fetchDocumentMetadata(authToken, targetdoc, function(err, metadata){
                 if(!err) {
                     console.log("TARGET DOC METADATA:");
                     console.log(metadata);
                 } else {
-                    if(err == "token expired") {
-                        recvizLocalStorage.clearToken();
-                        window.location.replace("/login.html");
-                    } else {
-                        utilityLib.informUser("alert-danger", err);
-                    }
+                    errorHandler(err);
                 }
-            })
+            });
 
-            var controllerDiv = document.getElementById("detailed-view-controller"); //This will serve necessary controls for enabling/disabling individiual similarity components such as text, citation and image. For example, I should be able to just see text plagiarism detection or text + citation or text + citation + image or nothing at all. This DIV is giving me ability to select what I want to see.
+
+            var navigationDiv = document.getElementById("detailed-view-navbar"); //This will serve necessary controls for enabling/disabling individiual similarity components such as text, citation and image. For example, I should be able to just see text plagiarism detection or text + citation or text + citation + image or nothing at all. This DIV is giving me ability to select what I want to see.
             var baseVisualizationDiv = document.getElementById("detailed-view-base-vis"); //This is where your visualization go.
-
+            initializeNavigation();
 
         } else {
             utilityLib.informUser("alert-danger", "Invalid query parameters. Please enter a valid URL.");
@@ -124,3 +108,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
 /* Project Notes
     - Shadow effect on baseoverlays create performance issues when all nodes are in sight and there are about 15 nodes yet this effect makes it much more visually appealing.
 */
+
+function initializeNavigation(){
+    const anchors = document.getElementsByClassName("nav-link");
+    const featureContainers = document.getElementsByClassName("tab-content");
+    var i;
+
+    for(i = 0 ; i < anchors.length ; i++){
+        anchors[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
+    }
+
+    //display the feature at position 0 initially
+    for(i = 1 ; i < featureContainers.length ; i++){
+        featureContainers[i].style.display = "none";
+    }
+}
+
+function toggleDisplayedFeature(featureId){
+    const tabContents = document.getElementsByClassName("tab-content");
+    var k;
+
+    // hide all elements with class="tab-content"
+    for (k = 0; k < tabContents.length; k++) {
+        tabContents[k].style.display = "none";
+    }
+
+    // Show the contents of the tab which has triggered the click event
+    document.getElementById(featureId).style.display = "block";
+}
