@@ -15,3 +15,5 @@ Our study consisted of 4 components:
 - assessment of perceived workload as measured by NASA-TLX
 - assessment of user's perceived satisfaction with individual design decisiond for the recommendation interaction interface (5-point Likert scale)
 
+## Study Findings
+- We have made the data and charts available under the following link: https://github.com/ag-gipp/recvis-frontend/blob/master/study/Findings.pdf
