@@ -44,7 +44,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         const matchedDocs = res.data.matchedDocs;
                         overviewUI.initialize(sourceDoc, matchedDocs, authToken, backendUrl, fileId, folderId, foldername, filename);
                     } else {
-                        utilityLib.informUser("alert-danger", "Unexpected response from our service.");
+                        utilityLib.informUser("alert-danger", "Unexpected response from our service: "+res.msg);
                     }
                 } else {
                     if(err == "token expired") {

@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://hyplagbackend.birkankolcu.com';
+const BACKEND_URL = 'http://recvisbackend.birkankolcu.com';
 
 /* HYPLAG
 const GLOBAL_FRONT_END_CONFIG = {
