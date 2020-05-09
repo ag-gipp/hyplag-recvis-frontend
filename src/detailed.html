@@ -7,20 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <title id="project-title"></title>
 
     <!-- Shared Styling -->
     <link rel="stylesheet" type="text/css" href="./css/shared-style.css">
-    
+
     <!-- Detailed View Necessary Imports -->
     <link rel="stylesheet" type="text/css" href="./css/detailed-style.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
     <script src="./js/overview-lib/external/d3.v5.js"></script>
     <script src="./js/config.js"></script>
 
@@ -33,77 +38,119 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#" id="project-brand"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#" id="project-brand"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</nav>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item" aria-current="page"><a href="/dashboard.html">Dashboard</a></li>
-            <li class="breadcrumb-item" aria-current="page" id="breadcrumb-folder-name"></li>
-            <li class="breadcrumb-item" aria-current="page" id="breadcrumb-file-name"></li>
-            <li class="breadcrumb-item active" aria-current="page">Detailed Comparison</li>
-        </ol>
-    </nav>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item" aria-current="page"><a href="/dashboard.html">Dashboard</a></li>
+        <li class="breadcrumb-item" aria-current="page" id="breadcrumb-folder-name"></li>
+        <li class="breadcrumb-item" aria-current="page" id="breadcrumb-file-name"></li>
+        <li class="breadcrumb-item active" aria-current="page">Detailed Comparison</li>
+    </ol>
+</nav>
 
-    <div id="body-page-infobox" class="alert d-none" role="alert">
-        This is an info box.
+<div id="body-page-infobox" class="alert d-none" role="alert">
+    This is an info box.
+</div>
+
+<!-- Detailed View Body Start -->
+<div id="detailed-view-wrapper">
+    <div id="detailed-view-navigation" class="row navigation ">
+        <div class="dropdown col-lg-2 col-md-6 col-12">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="detailed-view-document-selection"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Comparison Document
+            </button>
+            <div class="dropdown-menu" aria-labelledby="detailed-view-document-selection">
+                <a class="dropdown-item" href="#">Dummy Document A</a>
+                <a class="dropdown-item" href="#">Dummy Document B</a>
+                <a class="dropdown-item" href="#">Dummy Document C with a long text</a>
+            </div>
+        </div>
+        <ul class="nav nav-pills justify-content-end col-lg-10 col-md-6 col-12" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-Citations-tab" data-toggle="pill" href="#pills-Citations"
+                   role="tab" aria-controls="pills-Citations" aria-selected="true">Citations</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Math-tab" data-toggle="pill" href="#pills-Math" role="tab"
+                   aria-controls="pills-Math" aria-selected="false">Math</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Text-tab" data-toggle="pill" href="#pills-Text" role="tab"
+                   aria-controls="pills-Text" aria-selected="false">Text</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Figures-tab" data-toggle="pill" href="#pills-Figures" role="tab"
+                   aria-controls="pills-Figures" aria-selected="false">Figures</a>
+            </li>
+        </ul>
     </div>
-
-    <!-- Detailed View Body Start -->
-        <div id="detailed-view-wrapper" >
-            <div id="detailed-view-navigation" class="row navigation ">
-                <div class="dropdown col-lg-2 col-md-6 col-12">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="detailed-view-document-selection" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Comparison Document
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="detailed-view-document-selection">
-                        <a class="dropdown-item" href="#">Dummy Document A</a>
-                        <a class="dropdown-item" href="#">Dummy Document B</a>
-                        <a class="dropdown-item" href="#">Dummy Document C with a long text</a>
+    <div id="detailed-view-base-vis">
+        <!-- Container for Citation Visualization -->
+        <div id="Citation-Container" class="tab-content">
+            <h3>Citation</h3>
+            <p>This is citation text</p>
+        </div>
+        <!-- Container for Math Visualization -->
+        <div id="Math-Container" class="tab-content">
+            <h3>Math</h3>
+            <p>This is math text</p>
+        </div>
+        <!-- Container for Text Visualization -->
+        <div id="Text-Container" class="tab-content">
+            <h3>Text</h3>
+            <p>This is simply text.</p>
+        </div>
+        <!-- Container for Figure Visualization -->
+        <div id="Figures-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>MINIMUM IMAGE SIMILARITY</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="range-control">
+                            <input type="range" min="0" max="100" value="50" class="slider" name="visibilityRange" onchange="imageFilterValueChanged(this.value)" oninput="imageFilterValueChanged(this.value)">
+                        </div>
+                    </div>
+                    <div>
                     </div>
                 </div>
-                <ul class="nav nav-pills justify-content-end col-lg-10 col-md-6 col-12" id="pills-tab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="pills-Citations-tab" data-toggle="pill" href="#pills-Citations" role="tab" aria-controls="pills-Citations" aria-selected="true">Citations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="pills-Math-tab" data-toggle="pill" href="#pills-Math" role="tab" aria-controls="pills-Math" aria-selected="false">Math</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="pills-Text-tab" data-toggle="pill" href="#pills-Text" role="tab" aria-controls="pills-Text" aria-selected="false">Text</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="pills-Figures-tab" data-toggle="pill" href="#pills-Figures" role="tab" aria-controls="pills-Figures" aria-selected="false">Figures</a>
-                    </li>
-                </ul>
-            </div>
-            <div id="detailed-view-base-vis" class="row">
-                <!-- Container for Citation Visualization -->
-                <div id="Citation-Container" class="tab-content">
-                    <h3>Citation</h3>
-                    <p>This is citation text</p>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>CURRENT SIMILARITY SCORE</p>
+                    </div>
+                    <div class="config-component-body">
+                        <p id="rangeValue">0.5</p>
+                    </div>
                 </div>
-                <!-- Container for Math Visualization -->
-                <div id="Math-Container" class="tab-content">
-                    <h3>Math</h3>
-                    <p>This is math text</p>
+                <div class="dropdown figure-collection">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="figures-view-document-selection"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Src Document Figure
+                    </button>
+                    <div class="dropdown-menu" id="src-figures-list" aria-labelledby="figures-view-document-selection">
+                    </div>
                 </div>
-                <!-- Container for Text Visualization -->
-                <div id="Text-Container" class="tab-content">
-                    <h3>Text</h3>
-                    <p>This is simply text.</p>
-                </div>
-                <!-- Container for Figure Visualization -->
-                <div id="Figures-Container" class="tab-content">
-                    <h3>Figures</h3>
-                    <p>Here we are going to display figures</p>
-                </div>
-            </div> 
         </div>
+            <div class="figures-visualization">
+                <div class="figure-visualization-content">
+                    <img class="figure" id="sourceDocFigure">
+                    <img class="figure" id="targetDocFigure">
+                </div>
+                <div class="figure-visualization-caption">
+                    <p id="srcCaption" class="figureCaption"> Caption 1</p>
+                    <p id="targetCaption" class="figureCaption"> Caption 2</p>
+                </div>
+            </div>
+    </div>
     <!-- Detailed View Body End -->
 </body>
 

@@ -4,11 +4,20 @@
     border-radius: 5px;
 }
 
-.navigation{
-    background-color: #cccccc;
+#detailed-view-base-vis{
+    width: 100%;
+    height: 100%;
+    background-color: #f8f9fa;
 }
 
-.navigation > .dropdown > button {
+.navigation{
+    background-color: #cccccc;
+    min-height: 50px;
+    display: flex;
+    align-content: center;
+}
+
+.dropdown > button {
     background-color: white;
     color: black;
     border: 1px solid;
@@ -22,8 +31,90 @@
 
 .nav-pills > .nav-item > a {
     color: black;
+    outline: none;
+    box-shadow: none;
 }
 .nav-pills > .nav-item > .active{
     background-color: #e5e5e5;
     color: black;
 }
+
+.flex-container{
+    display:flex;
+    width:100%;
+    height: 100%;
+}
+
+.panel-left{
+    flex:2;
+}
+
+.figures-visualization{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex:12;
+}
+
+.figure-visualization-content{
+    display: flex;
+    flex:9;
+}
+
+.figure-visualization-caption{
+    display: flex;
+    flex:1;
+}
+
+.figure{
+    width: 50%;
+    padding: 10px 10px 10px 10px;
+}
+
+.figureCaption{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.config-component{
+    margin: 50px 10px 40px 10px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    text-align: center;
+}
+
+.config-component-header{
+    width: 100%;
+    background-color: rgb(232, 233, 238);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 0.8em;
+    font-weight: bold;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    line-height:50px;
+}
+
+.config-component-header p {
+    color: rgb(102, 102, 102);
+}
+
+.config-component-body{
+    height:70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.figure-collection{
+    display: flex;
+    justify-content: center;
+}
+
+
+
+
