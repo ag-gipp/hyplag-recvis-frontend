@@ -97,8 +97,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             backendApi.fetchDocumentFullData(authToken, sourcedoc, function (err, fullDocData) {
                 if (!err) {
                     sourceDocumentData = fullDocData;
-                    console.log("SOURCE DOC FULL DATA:");
-                    console.log(sourceDocumentData);
                     callbackResolved();
                 } else {
                     errorHandler(err);
@@ -174,9 +172,7 @@ function initializeNavigation() {
     }
 
     //display the feature at position 0 initially
-    for (i = 1; i < featureContainers.length; i++) {
-        featureContainers[i].style.display = "none";
-    }
+    featureContainers[0].style.display = "flex";
 }
 
 function toggleDisplayedFeature(featureName) {
@@ -194,11 +190,12 @@ function toggleDisplayedFeature(featureName) {
 
 //CITATION BLOCK
 function visualizeCitationComparison() {
-    //TODO: calculate width and height based on available size later on
-    const SVG_WIDTH = 960;
-    const SVG_HEIGHT = 500;
     const FEATURE_ID = FEATURE_NAME_CONTAINER_ID_MAPPING["Citations"];
+    const SVG_WIDTH = document.getElementById(FEATURE_ID).clientWidth;
+    const SVG_HEIGHT = document.getElementById(FEATURE_ID).clientHeight;
     const COMPARISON_DATA = getCitationComparisonData();
+    const CIRCLE_PADDING = 20;
+    console.log(COMPARISON_DATA);
 
     /*
     a possibility to remove an existing svg
@@ -206,64 +203,80 @@ function visualizeCitationComparison() {
          d3.select("#citation_svg").remove();
      */
 
+    var bubble = d3.pack().size([SVG_WIDTH,SVG_HEIGHT]).padding(CIRCLE_PADDING),
+        root = d3.hierarchy({children: COMPARISON_DATA}).sum(function(d){  return d.children ? 0 : d[2]});
+
+    var nodeData = bubble(root).children;
+
     //create SVG inside the feature container
-    d3.select(`#${FEATURE_ID}`).append("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT).attr("id","citation_svg");
-    console.log(d3.select('#citation_svg'));
+    const svg = d3
+        .select(`#${FEATURE_ID}`)
+        .append("svg")
+            .attr("width", SVG_WIDTH)
+            .attr("height",SVG_HEIGHT).attr("id","citation_svg")
+            .attr("class", "bubble")
+        .call(d3.zoom().on("zoom", function () {svg.attr("transform", d3.event.transform)
+    }));
+    const upperCircleGroup = svg.append("g").attr('transform',`translate(0,${- CIRCLE_PADDING + 5})`);
+    const lowerCircleGroup = svg.append("g");
 
-    //access newly created svg
-    const svg = d3.select('svg');
+    nodeData.forEach(function (data, index) {
+        console.log(index);
+        var gUpper = upperCircleGroup.append("g");
+        var gLower = lowerCircleGroup.append("g");
 
-    //work on svg
-    const g = svg
-        .append('g')
-        .attr('transform', `translate(${SVG_WIDTH / 2},${SVG_HEIGHT / 2})`);
 
-    const circle = g
-        .append('circle')
-        .attr('r', 200)
-        .attr('fill', 'yellow')
-        .attr('stroke', 'black');
+        var lowerCircle = gLower.append('path')
+            .attr('d', d3.arc()({
+                innerRadius: 0,
+                outerRadius: data.r,
+                startAngle: Math.PI / 2,
+                endAngle: 3 / 2 * Math.PI
+            }))
+            .attr('transform', `translate(${data.x},${data.y})`)
+            .attr('fill','#ffffff')
+            .attr('stroke', 'black')
+            .attr("id", () => {return "lowerCircle_"+index})
+            .on("mouseover", function() { d3.select(this).attr("stroke", "red"); })
+            .on("mouseout", function() { d3.select(this).attr("stroke", "black"); })
+            .on("click", () => console.log(d3.select(this)));
 
-    const eyesG = g
-        .append('g')
-        .attr('transform', `translate(0,-80)`);
+        var upperCircle = gUpper.append('path')
+            .attr('d', d3.arc()({
+                innerRadius: 0,
+                outerRadius: data.r,
+                startAngle: 1 / 2 * Math.PI,
+                endAngle: - 1 / 2 * Math.PI
+            }))
+            .attr('transform', `translate(${data.x},${data.y})`)
+            .attr('fill', '#e5e5e5')
+            .attr('stroke','black')
+            .attr("id", () => {return "upperCircle_"+index})
+            .on("mouseover", function() { d3.select(this).attr("stroke", "red"); })
+            .on("mouseout", function() { d3.select(this).attr("stroke", "black"); })
+            .on("click", () => console.log(d3.select(this)));
 
-    const leftEye = eyesG
-        .append('circle')
-        .attr('r', 30)
-        .attr('cx', -100);
 
-    const rightEye = eyesG
-        .append('circle')
-        .attr('r', 30)
-        .attr('cx', 100);
+        //http://www.stumblingrobot.com/2015/10/06/find-the-largest-rectangle-that-can-be-inscribed-in-a-semicircle/
+        var upperText = gUpper
+            .append("foreignObject")
+            .attr("width", () => {return data.r*Math.sqrt(2)})
+            .attr("height", () => {return data.r*(Math.sqrt(2)/2)})
+            .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y - (data.r/Math.sqrt(2)) })`)
+            .text(() => {return data.data[0]})
+            .style("font-size", "0.1rem");
 
-    const leftEyebrow = eyesG
-        .append('rect')
-        .attr('width', 60)
-        .attr('height', 15)
-        .attr("x", -100 - 50 / 2)
-        .attr("y", -60);
+        var lowerText = gLower
+            .append("foreignObject")
+            .attr("width", () => {return data.r*Math.sqrt(2)})
+            .attr("height", () => {return data.r*(Math.sqrt(2)/2)})
+            .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y  })`)
+            .text(() => {return data.data[1]})
+            .style("font-size", "0.1rem");
+    });
 
-    const rightEyebrow = eyesG
-        .append('rect')
-        .attr('width', 60)
-        .attr('height', 15)
-        .attr("x", 75)
-        .attr("y", -60)
-        .transition().duration(2000)
-        .attr('y', -80)
-        .transition().duration(2000)
-        .attr("y", -60);
-
-    const mouth = g
-        .append('path')
-        .attr('d', d3.arc()({
-            innerRadius: 0,
-            outerRadius: 150,
-            startAngle: Math.PI / 2,
-            endAngle: 3 / 2 * Math.PI
-        }));
+    console.log(svg.selectAll(".node"));
+    svg.attr("transform", "scale(1.5,1)");
 }
 
 function getCitationComparisonData() {
@@ -310,18 +323,60 @@ function getCitationComparisonData() {
 }
 
 function getDocumentDataFromPositions(srcDocumentBeginning, srcDocumentEnd, targetDocumentBeginning, targetDocumentEnd) {
-    var citationStrings;
-    console.log(srcDocumentBeginning + " " + srcDocumentEnd + "  " + targetDocumentBeginning + " " + targetDocumentEnd);
-    var sourceDocumentStringRepresentation = sourceDocumentData.contentBody;
-    var targetDocumentStringRepresentation = targetDocumentData.contentBody;
-
-    console.log(sourceDocumentStringRepresentation.substring(srcDocumentBeginning, srcDocumentEnd));
-    console.log(targetDocumentStringRepresentation.substring(targetDocumentBeginning, targetDocumentEnd));
     if(!sourceDocumentData || !targetDocumentData){
         //utilityLib.informUser("alert-danger", "Data can not be retrieved from files.");
         return null;
     }
 
+    var srcLowerBound, srcUpperBound, targetLowerBound, targetUpperBound;
+    var sourceDocumentStringRepresentation = sourceDocumentData.contentBody;
+    var targetDocumentStringRepresentation = targetDocumentData.contentBody;
+
+    for(var k = srcDocumentBeginning ; k > 0 ; k--){
+        if(sourceDocumentStringRepresentation[k].match("[!.?]") &&
+            !sourceDocumentStringRepresentation[k-1].match("[b]") &&
+            !sourceDocumentStringRepresentation[k-2].match("[i]") &&
+            !sourceDocumentStringRepresentation[k-3].match("[b]")){
+            srcLowerBound = ++k;
+            break;
+        }
+    }
+
+    for(var k = srcDocumentEnd ; k < sourceDocumentStringRepresentation.length ; k++){
+        if(sourceDocumentStringRepresentation[k].match("[!.?]") &&
+            !sourceDocumentStringRepresentation[k-1].match("[b]") &&
+            !sourceDocumentStringRepresentation[k-2].match("[i]") &&
+            !sourceDocumentStringRepresentation[k-3].match("[b]")){
+            srcUpperBound = k;
+            break;
+        }
+    }
+
+    for(var k = targetDocumentBeginning ; k > 0 ; k--){
+        if(targetDocumentStringRepresentation[k].match("[!.?]") &&
+            !targetDocumentStringRepresentation[k-1].match("[b]") &&
+            !targetDocumentStringRepresentation[k-2].match("[i]") &&
+            !targetDocumentStringRepresentation[k-3].match("[b]")){
+            targetLowerBound = ++k;
+            break;
+        }
+    }
+
+    for(var k = targetDocumentEnd ; k < targetDocumentStringRepresentation.length ; k++){
+        if(targetDocumentStringRepresentation[k].match("[!.?]") &&
+            !targetDocumentStringRepresentation[k-1].match("[b]") &&
+            !targetDocumentStringRepresentation[k-2].match("[i]") &&
+            !targetDocumentStringRepresentation[k-3].match("[b]")){
+            targetUpperBound = k;
+            break;
+        }
+    }
+
+    //TODO: improve finding a sentence
+    const srcSentence = sourceDocumentStringRepresentation.substring(srcLowerBound, srcUpperBound + 1);
+    const targetSentence = targetDocumentStringRepresentation.substring(targetLowerBound, targetUpperBound + 1);
+
+    return [srcSentence, targetSentence, Math.max(srcSentence.length, targetSentence.length)];
 }
 
 
@@ -339,7 +394,100 @@ function visualizeFormulaComparison() {
 
 //TEXT BLOCK
 function visualizeTextComparison() {
-    console.log("Text is being visualized")
+    console.log("Text is being visualized");
+    console.log("Beginning" + new Date().getSeconds() + " " + new Date().getMilliseconds());
+    var srcOccurrenceMap = new Map();
+    var targetOccurrenceMap = new Map();
+    var srcSorted, targetSorted, identicalEntries = new Map();
+    var k,i;
+    //replace gets rid of xml and html tags
+    //match turns the string into an array of words
+    const srcText = sourceDocumentData.contentBody
+        .replace(/<[^>]*>/g, '')
+        .toLowerCase()
+        .match(/\b(\w+)\b/g);
+    const targetText =  targetDocumentData.contentBody
+        .replace(/<[^>]*>/g, '')
+        .toLowerCase()
+        .match(/\b(\w+)\b/g);
+
+    for(k = 0 ; k < srcText.length ; k++){
+        let mappedValue = srcOccurrenceMap.get(srcText[k]);
+        if(mappedValue){
+            srcOccurrenceMap.set(srcText[k], mappedValue + 1);
+        }
+        else{
+            srcOccurrenceMap.set(srcText[k], 1);
+        }
+    }
+
+   for(k = 0 ; k < targetText.length ; k++){
+        let mappedValue = targetOccurrenceMap.get(targetText[k]);
+        if(mappedValue){
+            targetOccurrenceMap.set(targetText[k], mappedValue + 1);
+        }
+        else{
+            targetOccurrenceMap.set(targetText[k], 1);
+        }
+    }
+
+    //pluralize in its simplest form -> partially wrong, for instance a -> as.. these will be filtered anyways though
+    for(let k of srcOccurrenceMap.keys()){
+        if(srcOccurrenceMap.get(k + "s")){
+            srcOccurrenceMap.set(k + "s", (srcOccurrenceMap.get(k) + srcOccurrenceMap.get(k+"s")));
+            srcOccurrenceMap.delete(k);
+        }
+    }
+
+    for(let k of targetOccurrenceMap.keys()){
+        if(targetOccurrenceMap.get(k + "s")){
+            targetOccurrenceMap.set(k + "s", (targetOccurrenceMap.get(k) + targetOccurrenceMap.get(k+"s")));
+            targetOccurrenceMap.delete(k);
+        }
+
+    }
+
+
+    //TODO: don't simply remove all words of length n, get rid of most common fill words or some shit like that
+    srcOccurrenceMap = new Map([...srcOccurrenceMap]
+        .sort((a,b) => {return b[1] - a[1]})
+        .filter((mapData) => {return mapData[0].length > 3}));
+    targetOccurrenceMap = new Map([...targetOccurrenceMap]
+        .sort((a,b) => {return b[1] - a[1]})
+        .filter((mapData) => {return mapData[0].length > 3}));
+
+
+    srcSorted = [...srcOccurrenceMap].map((data) => {return data[0]});
+    targetSorted = [...targetOccurrenceMap].map((data) => {return data[0]});
+
+
+
+    //retrieve matches in the top 250;
+    for(k = 0; k< Math.min(srcSorted.length, 250); k++ ){
+        for(i = 0; i < Math.min(targetSorted.length, 250) ; i++){
+            if(srcSorted[k] === targetSorted[i])
+                identicalEntries.set(srcSorted[k], i+k);
+        }
+    }
+
+    //remove identic entries from the sorted arrays
+    k = srcSorted.length;
+    while(k--){
+        if(identicalEntries.get(srcSorted[k]))
+            srcSorted.splice(k,1);
+    }
+
+    k = targetSorted.length;
+    while(k--){
+        if(identicalEntries.get(targetSorted[k]))
+            targetSorted.splice(k,1);
+    }
+
+    console.log("End" + new Date().getSeconds() + " " + new Date().getMilliseconds());
+    console.log(srcSorted);
+    console.log(targetSorted);
+    //attention! here the sorting must be ascending as a lower value indicates that they were more relevant for both documents
+    console.log([...identicalEntries].sort((a,b) => { return a[1] - b[1]}).map((data) => {return data[0]}));
 }
 
 
@@ -359,9 +507,10 @@ function visualizeImagesComparison() {
         anchor.classList.add("dropdown-item");
         anchor.appendChild(document.createTextNode(IMAGE_DETECTION_MOCK_DATA[k].srcFigureName));
         anchor.onclick = (event) => {
-            document.getElementById("figures-view-document-selection").innerText = event.originalTarget.firstChild.data;
+            //TODO: use unique identifiers (best case matching id or some info like that)
+            document.getElementById("figures-view-document-selection").innerText = event.target.innerText;
             for(var i = 0 ; i < IMAGE_DETECTION_MOCK_DATA.length ; i++){
-                if(event.originalTarget.firstChild.data === IMAGE_DETECTION_MOCK_DATA[i].srcFigureName){
+                if(event.target.innerText === IMAGE_DETECTION_MOCK_DATA[i].srcFigureName){
                     sourceFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[i].srcFigureURI}`;
                     targetFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[i].targetFigureURI}`;
                     sourceCaption.innerText = IMAGE_DETECTION_MOCK_DATA[i].srcFigureName;
@@ -381,6 +530,8 @@ function visualizeImagesComparison() {
 }
 
 //TODO: add functionality that slider level is being compared to similarity measure in mock data in order to adjust dropdown
+//for this keep in mind that we are currently using two functions onChange and onXYZ.. use the correct one (at the end) for dropdown update
+//the current implementation adjusts the current similarity score which is incorrect.. this one is constant for two images
 function imageFilterValueChanged(filterValue){
     const minSimilarityScore = filterValue/100;
     document.getElementById("rangeValue").innerHTML = `${minSimilarityScore}`;
