@@ -24,6 +24,10 @@
     box-shadow: none;
 }
 
+.dropdown-menu{
+    white-space: normal;
+}
+
 .btn-secondary:not(:disabled):not(.disabled).active,  .show > .btn-secondary.dropdown-toggle{
     background-color: white;
     color: black;

@@ -32,8 +32,11 @@
     <script src="./js/shared/UtilitiesLibrary.js"></script>
     <script src="./js/shared/RecvizLocalStorage.js"></script>
     <script src="./js/shared/BackendApi.js"></script>
-    <script src="./js/visualization-constants.js"></script>
-    <script src="./js/detailed.js"></script>
+    <script src="./js/detailed/detailed-citation.js"></script>
+    <script src="./js/detailed/detailed-figures.js"></script>
+    <script src="./js/detailed/detailed-formulas.js"></script>
+    <script src="./js/detailed/detailed-text.js"></script>
+    <script src="./js/detailed/detailed.js"></script>
 
     <!-- Detailed View Necessary Imports End -->
 </head>
@@ -64,14 +67,11 @@
 <div id="detailed-view-wrapper">
     <div id="detailed-view-navigation" class="row navigation ">
         <div class="dropdown col-lg-2 col-md-6 col-12">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="detailed-view-document-selection"
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="detailed-view-document-selection-button"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Comparison Document
+                Document selection
             </button>
-            <div class="dropdown-menu" aria-labelledby="detailed-view-document-selection">
-                <a class="dropdown-item" href="#">Dummy Document A</a>
-                <a class="dropdown-item" href="#">Dummy Document B</a>
-                <a class="dropdown-item" href="#">Dummy Document C with a long text</a>
+            <div class="dropdown-menu" id="detailed-view-document-selection-menu" aria-labelledby="detailed-view-document-selection">
             </div>
         </div>
         <ul class="nav nav-pills justify-content-end col-lg-10 col-md-6 col-12" id="pills-tab" role="tablist">
@@ -116,7 +116,7 @@
                     </div>
                     <div class="config-component-body">
                         <div class="range-control">
-                            <input type="range" min="0" max="100" value="50" class="slider" name="visibilityRange" onchange="imageFilterValueChanged(this.value)" oninput="imageFilterValueChanged(this.value)">
+                            <input id="range-control-input"type="range" min="0" max="100" value="50" class="slider" name="visibilityRange">
                         </div>
                     </div>
                     <div>
