@@ -6,16 +6,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById("project-brand").innerHTML = projectBrand;
 
     let sourceDocumentData = null;
-    let targetDocumentData = null;
+    let recommendationDocumentData = null;
     let documentComparisonData = null;
     //temporary solution to deal with callbacks being asynchronus
     let callbackCounter = 3;
 
     const FEATURE_NAME_CONTAINER_ID_MAPPING = {
-        Citations: "Citation-Container",
-        Math: "Math-Container",
-        Text: "Text-Container",
-        Figures: "Figures-Container"
+        "Citations": "Citation-Container",
+        "Mathematical expressions": "Math-Container",
+        "Keywords": "Text-Container",
+        "Figures": "Figures-Container",
+        "Overview": "Overview-Container"
     };
 
 
@@ -24,6 +25,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let textComparison = null;
     let formulaComparison = null;
     let figureComparison = null;
+    let overview = null;
+    let collectedDocuments = null;
 
     var recvizLocalStorage = new RecvizLocalStorage();
     const INFO_BOX_ID = "#body-page-infobox";
@@ -66,39 +69,41 @@ window.addEventListener('DOMContentLoaded', (event) => {
             This function adds EventListeners to the navigation items, as well as choosing which feature to display by default
              */
             function initializeNavigation(documents) {
-                const anchors = document.getElementsByClassName("nav-link");
-                const featureContainers = document.getElementsByClassName("tab-content");
+                collectedDocuments = documents.collectedDocs;
+                const ANCHORS = document.getElementsByClassName("nav-link");
+                const FEATURE_CONTAINERS = document.getElementsByClassName("tab-content");
+                console.log(FEATURE_CONTAINERS);
 
-                for (let i = 0; i < anchors.length; i++) {
-                    anchors[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
+                for (let i = 0; i < ANCHORS.length; i++) {
+                    ANCHORS[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
                 }
 
-                //display the feature at position 0 initially
-                featureContainers[0].style.display = "flex";
+                for(let i = 1 ; i < FEATURE_CONTAINERS.length; i++){
+                    FEATURE_CONTAINERS[i].style.display = "none";
+                }
 
-                const dropDownMenu = document.getElementById("detailed-view-document-selection-menu");
-                documents.collectedDocs.forEach(selectedDocument => {
-                        var anchor = document.createElement('a');
+                const DROP_DOWN_MENU = document.getElementById("detailed-view-document-selection-menu");
+                documents.collectedDocs.forEach((selectedDocument,index) => {
+                        let anchor = document.createElement('a');
+                        anchor.classList.add('dropdown-item');
+                        anchor.setAttribute('id', `dropdown_element_${index}`);
                         anchor.appendChild(document.createTextNode(selectedDocument.title));
                         anchor.onclick = (event) => {
                             callbackCounter = 3;
-                            console.log("YO");
-                            var item = documents.collectedDocs.find((docObject) => docObject.title === event.target.innerText);
-                            console.log(item);
+                            let item = documents.collectedDocs[+event.target.id.slice(-1)];
                             getComparisonData(backendApi, authToken, sourcedoc, item.documentId);
                         };
-                        dropDownMenu.appendChild(anchor);
+                        DROP_DOWN_MENU.appendChild(anchor);
                     }
                 );
             }
 
             function toggleDisplayedFeature(featureName) {
-                const featureContainers = document.getElementsByClassName("tab-content");
-                var k;
+                const FEATURE_CONMTAINERS = document.getElementsByClassName("tab-content");
 
                 // hide all elements with class="tab-content"
-                for (k = 0; k < featureContainers.length; k++) {
-                    featureContainers[k].style.display = "none";
+                for (let k = 0; k < FEATURE_CONMTAINERS.length; k++) {
+                    FEATURE_CONMTAINERS[k].style.display = "none";
                 }
 
                 // Show the contents of the tab which has triggered the click event
@@ -106,7 +111,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
 
-            function getComparisonData(backendApi, authToken, sourcedoc, targetdoc) {
+            function getComparisonData(backendApi, authToken, sourcedoc, recommendedDoc) {
 
                 const errorHandler = (error) => {
                     if (error === "token expired") {
@@ -117,7 +122,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 };
 
-                backendApi.detailedViewCompare(authToken, sourcedoc, targetdoc, function (err, comparisonData) {
+                backendApi.detailedViewCompare(authToken, sourcedoc, recommendedDoc, function (err, comparisonData) {
                     if (!err) {
                         documentComparisonData = comparisonData;
                         console.log("COMPARISON DATA:");
@@ -137,9 +142,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 });
 
-                backendApi.fetchDocumentFullData(authToken, targetdoc, function (err, fullDocData) {
+                backendApi.fetchDocumentFullData(authToken, recommendedDoc, function (err, fullDocData) {
                     if (!err) {
-                        targetDocumentData = fullDocData
+                        recommendationDocumentData = fullDocData
                         callbackResolved();
                     } else {
                         errorHandler(err);
@@ -157,21 +162,22 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     //temporary solution to deal with callbacks being asynchronus
     function callbackResolved() {
-        if (--callbackCounter == 0) {
+        if (--callbackCounter === 0) {
             if (citationComparison && formulaComparison && textComparison && figureComparison) {
-                citationComparison.update(sourceDocumentData, targetDocumentData, documentComparisonData);
-                formulaComparison.update();
-                textComparison.update(sourceDocumentData, targetDocumentData);
+                citationComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
+                formulaComparison.update(sourceDocumentData, recommendationDocumentData);
+                textComparison.update(sourceDocumentData, recommendationDocumentData);
                 figureComparison.update();
             } else {
-                citationComparison = new CitationComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Citations"], sourceDocumentData, targetDocumentData, documentComparisonData);
+                citationComparison = new CitationComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Citations"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 citationComparison.visualizeCitationSimilarity();
-                formulaComparison = new FormulaComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Math"]);
+                formulaComparison = new FormulaComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Mathematical expressions"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 formulaComparison.visualizeFormulaSimilarity();
-                textComparison = new TextComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Text"], sourceDocumentData, targetDocumentData);
+                textComparison = new TextComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Keywords"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 textComparison.visualizeTextSimilarity();
-                figureComparison = new FigureComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Figures"]);
+                figureComparison = new FigureComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Figures"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 figureComparison.visualizeImageSimilarity();
+                overview = new SelectedDocumentsOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData, collectedDocuments);
             }
 
         }

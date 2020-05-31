@@ -1,5 +1,5 @@
-function FigureComparison(FEATURE_ID) {
-    const IMAGE_DETECTION_MOCK_DATA = [
+function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocumentData, documentComparisonData) {
+    const FIGURE_DETECTION_MOCK_DATA = [
         {
             srcFigureName: "Figure A",
             targetFigureName: "Figure 1",
@@ -22,54 +22,167 @@ function FigureComparison(FEATURE_ID) {
             similarityScore: 0.7
         },
     ];
+    const FIGURES_CONTENT_CONTAINER = document.getElementById("figures-content-container");
+    const SOURCE_FIGURE_CONTAINER = document.getElementById("sourceDocFigure");
+    const RECOMMENDATION_FIGURE_CONTAINER = document.getElementById("recommendationDocFigure");
+    const SOURCE_FIGURE_CAPTION = document.getElementById("srcCaption");
+    const RECOMMENDATION_FIGURE_CAPTION = document.getElementById("recommendationCaption");
+    const FIGURES_LIST = document.getElementById("src-figures-list");
+    const FIGURE_SIMILARITY_SLIDER = document.getElementById("figure-similarity-input");
+    const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("rangeValue");
+    const HEATMAP_CHECKBOX = document.getElementById("heatmap-overlay-checkbox");
 
-    const sourceFigureContainer = document.getElementById("sourceDocFigure");
-    const targetFigureContainer = document.getElementById("targetDocFigure");
-    const sourceCaption = document.getElementById("srcCaption");
-    const targetCaption = document.getElementById("targetCaption");
-    const figuresList = document.getElementById("src-figures-list");
+    let mockDataWorkingCopy = FIGURE_DETECTION_MOCK_DATA;
 
-    this.visualizeImageSimilarity = () => {
-        for (let k = 0; k < IMAGE_DETECTION_MOCK_DATA.length; k++) {
+    this.appendFigureMatchesToDropdown = () => {
+        for (let k = 0; k < mockDataWorkingCopy.length; k++) {
             let anchor = document.createElement('a');
             anchor.classList.add("dropdown-item");
-            anchor.appendChild(document.createTextNode(IMAGE_DETECTION_MOCK_DATA[k].srcFigureName));
+            anchor.appendChild(document.createTextNode("Figure_match_"+k));
             anchor.onclick = (event) => {
-                //TODO: use unique identifiers (best case matching id or some info like that)
-                document.getElementById("figures-view-document-selection").innerText = event.target.innerText;
-                for (let i = 0; i < IMAGE_DETECTION_MOCK_DATA.length; i++) {
-                    if (event.target.innerText === IMAGE_DETECTION_MOCK_DATA[i].srcFigureName) {
-                        sourceFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[i].srcFigureURI}`;
-                        targetFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[i].targetFigureURI}`;
-                        sourceCaption.innerText = IMAGE_DETECTION_MOCK_DATA[i].srcFigureName;
-                        targetCaption.innerText = IMAGE_DETECTION_MOCK_DATA[i].targetFigureName;
-                    }
+                let index = event.target.innerText.slice(-1);
+                SOURCE_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[index].srcFigureURI}`;
+                RECOMMENDATION_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[index].targetFigureURI}`;
+                SOURCE_FIGURE_CAPTION.innerText = mockDataWorkingCopy[index].srcFigureName;
+                RECOMMENDATION_FIGURE_CAPTION.innerText = mockDataWorkingCopy[index].targetFigureName;
+
+                //generate new heatmap for each match if checkbox is checked
+                d3.select("#figures_svg").remove();
+                if(HEATMAP_CHECKBOX.checked){
+                    this.drawSvgHeatmap();
                 }
             };
-            figuresList.appendChild(anchor);
+            FIGURES_LIST.appendChild(anchor);
         }
+    };
 
-        let rangeSlider = document.getElementById("range-control-input");
-        rangeSlider.addEventListener('change', this.handleFilterValueChange, false);
-        rangeSlider.addEventListener('input', this.handleFilterValueChange, false);
+    this.initializeFigureNavigation = () => {
+        //populate dropdown menu
+        this.appendFigureMatchesToDropdown();
 
-        //set default values
-        sourceFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[0].srcFigureURI}`;
-        targetFigureContainer.src = `data:image/x-icon;base64,${IMAGE_DETECTION_MOCK_DATA[0].targetFigureURI}`;
-        sourceCaption.innerText = IMAGE_DETECTION_MOCK_DATA[0].srcFigureName;
-        targetCaption.innerText = IMAGE_DETECTION_MOCK_DATA[0].targetFigureName;
+        //initialize slider functionality
+        FIGURE_SIMILARITY_SLIDER.addEventListener('change', (event) => this.handleSliderValueChange(event), false);
+        FIGURE_SIMILARITY_SLIDER.addEventListener('input', (event) => this.handleSliderValueChange(event), false);
+
+        //initialize checkbox functionality
+        HEATMAP_CHECKBOX.addEventListener('change', () => this.handleCheckboxChange(), false);
+    };
+
+    this.initializeFigureNavigation();
+
+    this.visualizeImageSimilarity = () => {
+
+        //display figure match at positon 0 of the working copy
+        SOURCE_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[0].srcFigureURI}`;
+        RECOMMENDATION_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[0].targetFigureURI}`;
+        SOURCE_FIGURE_CAPTION.innerText = mockDataWorkingCopy[0].srcFigureName;
+        RECOMMENDATION_FIGURE_CAPTION.innerText = mockDataWorkingCopy[0].targetFigureName;
+
+        DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
     };
 
     this.update = () => {
-        console.log("Figures are being updated");
-    }
-
-    //TODO: add functionality that slider level is being compared to similarity measure in mock data in order to adjust dropdown
-//for this keep in mind that we are currently using two functions onChange and onXYZ.. use the correct one (at the end) for dropdown update
-//the current implementation adjusts the current similarity score which is incorrect.. this one is constant for two images
-    this.handleFilterValueChange = (event) => {
-
-        const minSimilarityScore = event.target.value / 100;
-        document.getElementById("rangeValue").innerHTML = `${minSimilarityScore}`;
+        d3.select("#figures_svg").remove();
+        if(HEATMAP_CHECKBOX.checked){
+            this.drawSvgHeatmap();
+        }
     };
+
+    this.drawSvgHeatmap = () => {
+        const SVG_WIDTH = FIGURES_CONTENT_CONTAINER.clientWidth;
+        const SVG_HEIGHT = FIGURES_CONTENT_CONTAINER.clientHeight;
+        const SVG_OPACITY = 0.4;
+        const SOURCE_CIRCLE_RADIUS = 50;
+        const RECOMMENDATION_CIRCLE_RADIUS = 70;
+        const RADIAL_GRADIENT_CENTER = "#FF0000";
+        const RADIAL_GRADIENT_OUTSIDE = "#FFB0B0";
+
+        let svg = d3.select("#figures-content-container")
+            .append("svg")
+                .attr("id","figures_svg")
+                .attr("width","100%")
+                .attr("height", "100%")
+                .style("position", "absolute")
+                .style("opacity", SVG_OPACITY);
+
+        let radialGradient = svg.append("defs")
+            .append("radialGradient")
+            .attr("id", "radial-gradient");
+
+        radialGradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", RADIAL_GRADIENT_CENTER);
+
+        radialGradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", RADIAL_GRADIENT_OUTSIDE);
+
+        //returns a value between [min, max]
+        let randomCoordinate = (min, max) => { return Math.min(min + Math.round(Math.random()*max) , max);};
+
+        svg
+            .append("circle")
+                .attr("cx", randomCoordinate(SOURCE_CIRCLE_RADIUS, SVG_WIDTH/2 - SOURCE_CIRCLE_RADIUS))
+                .attr("cy", randomCoordinate(SOURCE_CIRCLE_RADIUS, SVG_HEIGHT - SOURCE_CIRCLE_RADIUS))
+                .attr("id","left_figure_circle")
+                .attr("r",SOURCE_CIRCLE_RADIUS)
+                .attr("fill","url(#radial-gradient)");
+
+        svg
+            .append("circle")
+                .attr("cx", randomCoordinate(SVG_WIDTH/2 + RECOMMENDATION_CIRCLE_RADIUS, SVG_WIDTH - RECOMMENDATION_CIRCLE_RADIUS))
+                .attr("cy", randomCoordinate(RECOMMENDATION_CIRCLE_RADIUS, SVG_HEIGHT - RECOMMENDATION_CIRCLE_RADIUS))
+                .attr("id","right_figure_circle").attr("r",RECOMMENDATION_CIRCLE_RADIUS)
+                .attr("fill","url(#radial-gradient)");
+    };
+
+
+    this.handleSliderValueChange = (event) => {
+        const MIN_SIMILARITY_SCORE = event.target.value / 100;
+
+        this.updateSliderBubble(MIN_SIMILARITY_SCORE);
+
+        mockDataWorkingCopy =  FIGURE_DETECTION_MOCK_DATA.filter((figuresMatch) => {
+            return figuresMatch.similarityScore >= MIN_SIMILARITY_SCORE;
+        });
+
+        //remove old dropdown entries
+        while(FIGURES_LIST.firstChild){
+            FIGURES_LIST.removeChild(FIGURES_LIST.lastChild);
+        }
+
+        //append new entries
+        this.appendFigureMatchesToDropdown();
+
+        //display entry 0 of matchDataWorkingCopy on the page
+        this.visualizeImageSimilarity();
+    };
+
+    this.updateSliderBubble = (value) => {
+        const FIGURE_SLIDER_VALUE = document.getElementById('figure-slider-value');
+
+        FIGURE_SLIDER_VALUE.innerHTML = `<span>${value}</span>`;
+        FIGURE_SLIDER_VALUE.style.left = `${value*100}%`;
+    };
+
+    this.handleCheckboxChange = (event) => {
+        let heatmapSvg = document.getElementById("figures_svg");
+
+        //heatmap has not yet been created
+        if(!heatmapSvg){
+            //checkbox has just been checked
+            if(HEATMAP_CHECKBOX.checked){
+                this.drawSvgHeatmap();
+            }
+        }
+        else{
+            //heatmap is visible and checkbox was just unchecked
+            if(!HEATMAP_CHECKBOX.checked){
+                heatmapSvg.style.visibility = "hidden";
+            }
+            else{
+                heatmapSvg.style.visibility = "visible";
+            }
+        }
+    }
 }

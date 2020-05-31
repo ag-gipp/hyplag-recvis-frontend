@@ -17,6 +17,7 @@
 
     <!-- Detailed View Necessary Imports -->
     <link rel="stylesheet" type="text/css" href="./css/detailed-style.css">
+    <link rel="stylesheet" type="text/css" href="./css/detailed-text-style.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -25,6 +26,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
+    <script type="text/x-mathjax-config">
+     MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+          loader: {load: ['[tex]/enclose']},
+          processClass: "mathjax",
+          ignoreClass: "no-mathjax",
+           MathML: {
+            extensions: ["content-mathml.js"]
+  }
+    });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML">
+    </script>
 
     <script src="./js/overview-lib/external/d3.v5.js"></script>
     <script src="./js/config.js"></script>
@@ -36,12 +51,13 @@
     <script src="./js/detailed/detailed-figures.js"></script>
     <script src="./js/detailed/detailed-formulas.js"></script>
     <script src="./js/detailed/detailed-text.js"></script>
+    <script src="./js/detailed/detailed-overview.js"></script>
     <script src="./js/detailed/detailed.js"></script>
 
     <!-- Detailed View Necessary Imports End -->
 </head>
 
-<body>
+<body class="no-mathjax">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <a class="navbar-brand" href="#" id="project-brand"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -81,42 +97,89 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="pills-Math-tab" data-toggle="pill" href="#pills-Math" role="tab"
-                   aria-controls="pills-Math" aria-selected="false">Math</a>
+                   aria-controls="pills-Math" aria-selected="false">Mathematical expressions</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="pills-Text-tab" data-toggle="pill" href="#pills-Text" role="tab"
-                   aria-controls="pills-Text" aria-selected="false">Text</a>
+                   aria-controls="pills-Text" aria-selected="false">Keywords</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="pills-Figures-tab" data-toggle="pill" href="#pills-Figures" role="tab"
                    aria-controls="pills-Figures" aria-selected="false">Figures</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Overview-tab" data-toggle="pill" href="#pills-Overview" role="tab"
+                   aria-controls="pills-Overview" aria-selected="false">Overview</a>
+            </li>
         </ul>
     </div>
     <div id="detailed-view-base-vis">
         <!-- Container for Citation Visualization -->
-        <div id="Citation-Container" class="tab-content">
-        </div>
-        <!-- Container for Math Visualization -->
-        <div id="Math-Container" class="tab-content">
-            <h3>Math</h3>
-            <p>This is math text</p>
-        </div>
-        <!-- Container for Text Visualization -->
-        <div id="Text-Container" class="tab-content">
-            <h3>Text</h3>
-            <p>This is simply text.</p>
-        </div>
-        <!-- Container for Figure Visualization -->
-        <div id="Figures-Container" class="tab-content flex-container">
+        <div id="Citation-Container" class="tab-content flex-container">
             <div class="panel-left flex-column">
                 <div class="config-component">
                     <div class="config-component-header">
-                        <p>MINIMUM IMAGE SIMILARITY</p>
+                        <p>Legend</p>
                     </div>
                     <div class="config-component-body">
-                        <div class="range-control">
-                            <input id="range-control-input"type="range" min="0" max="100" value="50" class="slider" name="visibilityRange">
+                        <div class="citation-legend">
+                            <div class="citation-legend-entry ">
+                                <p class="legendSrcDocument"> Source Document Match</p>
+                            </div>
+                            <div class="citation-legend-entry">
+                                <p class="legendTargetDocument"> Target Document Match</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>SELECTED ALGORITHMS</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="citation-algorithms">
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="cc-checkbox" name="cc-checkbox" checked>
+                                <label class="label" for="cc-checkbox">cc</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Citation chunking identifies citation patterns regardless of potential transpositions and/or scaling. Is used to detect Shake and Paste plagiarism.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="gct-checkbox" name="gct-checkbox" checked>
+                                <label class="label" for="gct-checkbox">gct</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>GCT links individually longest citation matches into tiles. </title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content" >
+                                <input type="checkbox" class="citation-algorithm-selection" id="lccs-checkbox" name="lccs-checkbox" checked>
+                                <label class="label" for="lccs-checkbox">lccs</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Identifies the longest contiguous series of citations common to a set of documents.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="lccsdist-checkbox" name="lccsdist-checkbox" checked>
+                                <label class="label" for="lccsdist-checkbox">lccsdist</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Computes the Longest Common Citation Sequence that contains only distinct citations of two documents.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>det
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="citation-visualization-content" id="Citation-Content-Container">
+            </div>
+        </div>
+        <!-- Container for Math Visualization -->
+        <div id="Math-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>MATH SIMILARITY THRESHOLD</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="range-control range-wrap">
+                            <div class="range-value" id="math-slider-value"></div>
+                            <input id="formula-range-control-input"type="range" min="0" max="100" value="0" class="slider" name="visibilityRange">
                         </div>
                     </div>
                     <div>
@@ -127,29 +190,160 @@
                         <p>CURRENT SIMILARITY SCORE</p>
                     </div>
                     <div class="config-component-body">
+                        <p id="formulaRangeValue">0.5</p>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>NEXT FORMULA MATCH</p>
+                    </div>
+                    <div class="config-component-body arrow-navigation">
+                        <div class="arrow-navigation-item" id="previousFormulaMatch">
+                            <span id="arrow-navigation-left"> < </span>
+                        </div>
+                        <div class="arrow-navigation-item" id="nextFormulaMatch">
+                            <span id="arrow-navigation-right"> > </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>Legend</p>
+                    </div>
+                    <div class="config-component-body">
+                       <div class="formula-legend">
+                           <div class="formula-legend-entry">
+                               <p class="identical"> Identical identifiers</p>
+                           </div>
+                           <div class="formula-legend-entry">
+                               <p class="similar"> Similar identifiers</p>
+                           </div>
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <div class="formulas-visualization">
+                <div id="source-formula-context" class="formula-context">
+                    <div id="src-document-name" class="document-title"></div>
+                    <div class="formula-content mathjax">
+                        <p>Here's some context text, surrounding the formula to give the reader a bit more textual description of the formula - typically the sentences surrounding a formula will be referencing it (not allways, but very often). Vivamus tristique ex dui, vitae mattis nisi hendrerit in.Integer venenatis lacus eget sem tristique, sed sodales ipsum facilisis. Sed condimentum ornare facilisis. Aliquam a mauris nunc.</p>
+                        <div>
+                            <div id="srcFormula"></div>
+                            <div id="srcFormulaCaption"></div>
+                        </div>
+                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                    </div>
+                </div>
+                <div id="target-formula-context" class="formula-context">
+                    <div id="target-document-name" class="document-title"></div>
+                    <div class="formula-content mathjax">
+                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                        <div>
+                            <div id="targetFormula"> $$x = { \class{similar-formula-identifier}{-b} \pm \sqrt{b^2-4ac} \over \class{identical-formula-identifier}{2a}}.$$ </div>
+                            <div id="recommendationFormulaCaption"></div>
+                        </div>
+                        <p>Ut dapibus augue nulla, eget dictum ipsum ornare quis. Etiam nunc turpis, suscipit vel augue sit amet, varius pellentesque dolor. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Container for Text Visualization -->
+        <div id="Text-Container" class="tab-content flex-column">
+            <div>
+                <div id="keyword-legend" class="text-container-legend hidden">
+                    <p style="color:rgb(calc(10 *25.5), 0, calc(0 * 25.5))">Shared keywords</p>
+                    <p style="color:rgb(calc(0 *25.5), 0, calc(10 * 25.5))">Unique keywords</p>
+                    <p style="font-size: 12px;line-height: 25px">Font size corresponds to the occurrence frequency of the keyword </p>
+                </div>
+                <div id="keyword-legend-toggle" class="text-container-legend-toggle hidden"></div>
+                <p id="keyword-legend-toggle-label" class="keyword-legend-toggle-label hidden"> Legend</p>
+            </div>
+            <div id="text-columns-container" class="distribution">
+                <div class="column column--src-1"></div>
+                <div class="column column--src-2"></div>
+                <div class="column column--src-3"></div>
+                <div class="column column--src-4"></div>
+                <div class="column column--identical-5"></div>
+                <div class="column column--identical-4"></div>
+                <div class="column column--identical-3"></div>
+                <div class="column column--identical-2"></div>
+                <div class="column column--identical-1"></div>
+                <div class="column column--target-4"></div>
+                <div class="column column--target-3"></div>
+                <div class="column column--target-2"></div>
+                <div class="column column--target-1"></div>
+            </div>
+            <div class="text-footer">
+                <div class="source-keywords-footer"> Source document keywords</div>
+                <div class="shared-keywords-footer"> Shared keywords</div>
+                <div class="recommendation-keywords-footer"> Recommendation document keywords</div>
+            </div>
+        </div>
+        <!-- Container for Figure Visualization -->
+        <div id="Figures-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>MINIMUM FIGURE SIMILARITY</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="range-control range-wrap">
+                            <div class="range-value" id="figure-slider-value"></div>
+                            <input id="figure-similarity-input" type="range" min="0" max="100" value="0" class="slider" name="visibilityRange">
+                        </div>
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>FIGURE-MATCH SIMILARITY SCORE</p>
+                    </div>
+                    <div class="config-component-body">
                         <p id="rangeValue">0.5</p>
                     </div>
                 </div>
-                <div class="dropdown figure-collection">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="figures-view-document-selection"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Src Document Figure
-                    </button>
-                    <div class="dropdown-menu" id="src-figures-list" aria-labelledby="figures-view-document-selection">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>SELECT FIGURE MATCH</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="dropdown figure-collection">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="figures-view-document-selection"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Figure Matches
+                            </button>
+                            <div class="dropdown-menu" id="src-figures-list" aria-labelledby="figures-view-document-selection">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>SIMILARITY REGION HEATMAP</p>
+                    </div>
+                    <div class="config-component-body">
+                        <input type="checkbox" id="heatmap-overlay-checkbox" name="heatmap-overlay-checkbox">
                     </div>
                 </div>
         </div>
             <div class="figures-visualization">
-                <div class="figure-visualization-content">
+                <div id="figures-content-container" class="figure-visualization-content">
                     <img class="figure" id="sourceDocFigure">
-                    <img class="figure" id="targetDocFigure">
+                    <img class="figure" id="recommendationDocFigure">
                 </div>
                 <div class="figure-visualization-caption">
-                    <p id="srcCaption" class="figureCaption"> Caption 1</p>
-                    <p id="targetCaption" class="figureCaption"> Caption 2</p>
+                    <p id="srcCaption" class="caption"> Caption 1</p>
+                    <p id="recommendationCaption" class="caption"> Caption 2</p>
                 </div>
             </div>
+        </div>
+        <!-- Container for the overview -->
+        <div id="Overview-Container" class="tab-content overview-content">
+            <svg id="overview-svg" width="960" height="960"></svg>
+        </div>
     </div>
+</div>
     <!-- Detailed View Body End -->
 </body>
 
