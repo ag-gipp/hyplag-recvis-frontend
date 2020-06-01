@@ -3,17 +3,26 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.sourceDocumentData = sourceDocumentData;
     this.targetDocumentData = targetDocumentData;
 
-    const STOP_WORDS = ["a", "able", "about", "across", "after", "all", "almost", "also", "am", "among", "an", "and", "any", "are", "as", "at", "be", "because", "been", "but", "by", "can", "cannot", "could", "dear", "did", "do", "does", "either", "else", "ever", "every", "for", "from", "get", "got", "had", "has", "have", "he", "her", "hers", "him", "his", "how", "however", "i", "if", "in", "into", "is", "it", "its", "just", "least", "let", "like", "likely", "may", "me", "might", "most", "must", "my", "neither", "no", "nor", "not", "of", "off", "often", "on", "only", "or", "other", "our", "own", "rather", "said", "say", "says", "she", "should", "since", "so", "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "tis", "to", "too", "twas", "us", "wants", "was", "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "would", "yet", "you", "your", "ain't", "aren't", "can't", "could've", "couldn't", "didn't", "doesn't", "don't", "hasn't", "he'd", "he'll", "he's", "how'd", "how'll", "how's", "i'd", "i'll", "i'm", "i've", "isn't", "it's", "might've", "mightn't", "must've", "mustn't", "shan't", "she'd", "she'll", "she's", "should've", "shouldn't", "that'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "wasn't", "we'd", "we'll", "we're", "weren't", "what'd", "what's", "when'd", "when'll", "when's", "where'd", "where'll", "where's", "who'd", "who'll", "who's", "why'd", "why'll", "why's", "won't", "would've", "wouldn't", "you'd", "you'll", "you're", "you've"];
+    const STOP_WORDS = ["a", "able", "about", "across", "after", "all", "almost", "also", "am", "among", "an", "and", "any", "are", "as", "at", "be", "because", "been", "but", "by", "can", "cannot", "could", "dear", "did", "do", "does", "either", "else", "ever", "every", "for", "from", "get", "got", "had", "has", "have", "he", "her", "hers", "him", "his", "how", "however", "i", "if", "in", "into", "is", "it", "its", "just", "least", "let", "like", "likely", "may", "me", "might", "most", "must", "my", "neither", "no", "nor", "not", "of", "off", "often", "on", "only", "or", "other", "our", "own", "rather", "said", "say", "says", "she", "should", "since", "so", "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "tis", "to", "too", "twas", "us", "wants", "was", "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "would", "yet", "you", "your", "ain't", "aren't", "can't", "could've", "couldn't", "didn't", "doesn't", "don't", "hasn't", "he'd", "he'll", "he's", "how'd", "how'll", "how's", "i'd", "i'll", "i'm", "i've", "isn't", "it's", "might've", "mightn't", "must've", "mustn't", "shan't", "she'd", "she'll", "she's", "should've", "shouldn't", "that'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "wasn't", "we'd", "we'll", "we're", "weren't", "what'd", "what's", "when'd", "when'll", "when's", "where'd", "where'll", "where's", "who'd", "who'll", "who's", "why'd", "why'll", "why's", "won't", "would've", "wouldn't", "you'd", "you'll", "you're", "you've", "subscript","superscript"];
     const KEYWORDS_LEGEND = document.getElementById("keyword-legend");
     const KEYWORDS_LEGEND_TOGGLE = document.getElementById("keyword-legend-toggle");
     const KEYWORDS_LEGEND_TOGGLE_LABEL = document.getElementById("keyword-legend-toggle-label");
     const COLUMN_PREFIXES = ["column--src-", "column--target-", "column--identical-"];
+    const TRANSITION_DURATION_IN_MS = 400;
+    const DEFAULT_FONT_SIZE_IN_PX = 16;
+    const HIGHEST_FONT_SCALING_FACTOR = 1.25;
+    const MARGIN = 1.75;
+    /*
+    An approach to calculate the maximum number of words depending on the container height
+    The calculation needs to be based on the center column which has the biggest font-size (125%)
+     */
+    const MOST_WORDS_PER_COLUMN = Math.floor(document.getElementById("detailed-view-wrapper").clientHeight / (MARGIN*HIGHEST_FONT_SCALING_FACTOR*DEFAULT_FONT_SIZE_IN_PX ));
 
+    //adds EventListener to the legend - the transitions are handled by the css styling
     this.initializeLegendToggle = () => {
         KEYWORDS_LEGEND_TOGGLE.innerText = "▼";
 
         KEYWORDS_LEGEND_TOGGLE.addEventListener("click", () => {
-            const TRANSITION_DURATION_IN_MS = 400;
             if(KEYWORDS_LEGEND.classList.contains('hidden')){
                 KEYWORDS_LEGEND.classList.remove('hidden');
                 KEYWORDS_LEGEND_TOGGLE.classList.remove('hidden');
@@ -30,16 +39,18 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
 
     this.initializeLegendToggle();
 
-
     this.visualizeTextSimilarity = () => {
-        const [srcKeywords, targetKeywords, sharedKeywords] = this.processText();
+        //retrieve keyword arrays
+        const [srcKeywords, recommendationKeywords, sharedKeywords] = this.processText();
 
+        //place words within their corresponding columns
         this.placeSourceWords(srcKeywords);
-        this.placeRecommendationWords(targetKeywords);
+        this.placeRecommendationWords(recommendationKeywords);
         this.placeIdenticalWords(sharedKeywords);
 
     };
 
+    //resets each column and triggers visualization anew
     this.update = (updatedSourceDocumentData, updatedTargetDocumentData) => {
         this.sourceDocumentData = updatedSourceDocumentData;
         this.targetDocumentData = updatedTargetDocumentData;
@@ -47,35 +58,41 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
         this.visualizeTextSimilarity();
     };
 
+    //turns the documents data into three arrays of sorted keywords
     this.processText = () => {
-        let srcOccurrenceMap = new Map();
-        let targetOccurrenceMap = new Map();
-        let srcWordsSorted, targetWordsSorted, identicalWordsSorted, identicalEntries = new Map();
+        let srcOccurrenceMap = new Map(),
+            recommendationOccurrenceMap = new Map(),
+            identicalEntries = new Map();
+        let srcWordsSorted, recommendationWordsSorted, identicalWordsSorted;
 
-        const srcText = this.partitionTextIntoWords(this.sourceDocumentData);
-        const targetText = this.partitionTextIntoWords(this.targetDocumentData);
+        const SRC_TEXT = this.partitionTextIntoWords(this.sourceDocumentData);
+        const RECOMMENDATION_TEXT = this.partitionTextIntoWords(this.targetDocumentData);
 
-        srcOccurrenceMap = this.countWordFrequency(srcOccurrenceMap, srcText);
-        targetOccurrenceMap = this.countWordFrequency(targetOccurrenceMap, targetText);
+        srcOccurrenceMap = this.countWordFrequency(srcOccurrenceMap, SRC_TEXT);
+        recommendationOccurrenceMap = this.countWordFrequency(recommendationOccurrenceMap, RECOMMENDATION_TEXT);
 
         srcOccurrenceMap = this.simplePluralizationSearch(srcOccurrenceMap);
-        targetOccurrenceMap = this.simplePluralizationSearch(targetOccurrenceMap);
+        recommendationOccurrenceMap = this.simplePluralizationSearch(recommendationOccurrenceMap);
 
         srcOccurrenceMap = this.sortMapByWordFrequency(srcOccurrenceMap);
-        targetOccurrenceMap = this.sortMapByWordFrequency(targetOccurrenceMap);
+        recommendationOccurrenceMap = this.sortMapByWordFrequency(recommendationOccurrenceMap);
 
         srcOccurrenceMap = this.filterIrrelevantWords(srcOccurrenceMap);
-        targetOccurrenceMap = this.filterIrrelevantWords(targetOccurrenceMap);
+        recommendationOccurrenceMap = this.filterIrrelevantWords(recommendationOccurrenceMap);
 
+        /*
+        now that the map is sorted, the absolute occurrence frequency (data[1]) of each word is no longer needed
+        we generate an array of words from our maps
+        */
         srcWordsSorted = [...srcOccurrenceMap].map((data) => {
             return data[0]
         });
 
-        targetWordsSorted = [...targetOccurrenceMap].map((data) => {
+        recommendationWordsSorted = [...recommendationOccurrenceMap].map((data) => {
             return data[0]
         });
 
-        [identicalEntries, srcWordsSorted, targetWordsSorted] = this.findAndExtractIdenticalEntries(identicalEntries, srcWordsSorted, targetWordsSorted);
+        [identicalEntries, srcWordsSorted, recommendationWordsSorted] = this.findAndExtractIdenticalEntries(identicalEntries, srcWordsSorted, recommendationWordsSorted);
 
         //attention! here the sorting must be ascending as a lower value indicates that they were more relevant for both documents
         identicalWordsSorted = [...identicalEntries]
@@ -86,12 +103,14 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
                 return data[0];
             });
 
-        return [srcWordsSorted, targetWordsSorted, identicalWordsSorted];
+        return [srcWordsSorted, recommendationWordsSorted, identicalWordsSorted];
     };
 
     this.partitionTextIntoWords = (text) => {
-        //replace gets rid of xml and html tags
-        //match turns the string into an array of words
+        /*
+        replace gets rid of xml and html tags
+        match turns the string into an array of words
+        */
         return text.contentBody
             .replace( /(<([^>]+)>)/ig, ' ')
             .toLowerCase()
@@ -101,9 +120,12 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.countWordFrequency = (wordCountMap, wordsArray) => {
         for (let i = 0; i < wordsArray.length; i++) {
             let mappedValue = wordCountMap.get(wordsArray[i]);
+            //if a word exists, increment its count
             if (mappedValue) {
                 wordCountMap.set(wordsArray[i], mappedValue + 1);
-            } else {
+            }
+            //else, initialize count with 1
+            else {
                 wordCountMap.set(wordsArray[i], 1);
             }
         }
@@ -111,7 +133,10 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     };
 
     this.simplePluralizationSearch = (wordCountMap) => {
-        //pluralize in its simplest form -> partially wrong, for instance a -> as.. these will be filtered anyways though
+        /*
+        pluralize in its simplest form -> partially wrong, for instance a -> as.. these will be filtered anyways though
+        it returns decent results for our use case
+        */
         for (let key of wordCountMap.keys()) {
             if (wordCountMap.get(key + "s")) {
                 wordCountMap.set(key + "s", (wordCountMap.get(key) + wordCountMap.get(key + "s")));
@@ -121,16 +146,17 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
         return wordCountMap;
     };
 
-    //descending order
     this.sortMapByWordFrequency = (wordCountMap) => {
         let sortedWordCountMap = new Map([...wordCountMap]
             .sort((a, b) => {
+                //descending order
                 return b[1] - a[1]
             }));
         return sortedWordCountMap;
     };
 
     this.filterIrrelevantWords = (wordCountMap) => {
+        //filters words of length <= 3 and those which are part of the STOP_WORDS array
         wordCountMap = new Map([...wordCountMap].filter((mapData) => {
             return (mapData[0].length > 3) && (STOP_WORDS.indexOf(mapData[0]) === -1);
         }));
@@ -139,7 +165,8 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
 
     this.findAndExtractIdenticalEntries = (identicalEntries, srcWordsSorted, targetWordsSorted) => {
 
-        //retrieve matches in the top 500;
+        /*retrieve matches in the top 500
+        if there are less than 500 words in an array, each available word is being checked*/
         for (let k = 0; k < Math.min(srcWordsSorted.length, 500); k++) {
             for (let i = 0; i < Math.min(targetWordsSorted.length, 500); i++) {
                 if (srcWordsSorted[k] === targetWordsSorted[i])
@@ -179,6 +206,10 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.placeWordsInColumns = (COLUMN_COUNT, COLUMN_PREFIX, MOST_WORDS_PER_COLUMN, KEYWORDS) => {
         for(let i = COLUMN_COUNT ; i >= 1 ; i--){
             let column = document.getElementsByClassName(COLUMN_PREFIX+i)[0];
+            /*
+            by decrementing the upper border of k each i-iteration, the columns with less important words also receive less entries
+            in combination with the styling properties display:flex, flex-direction:column and justify-content:center, the browser does the layouting in each column for us
+            */
             for(let k = (i-1)* MOST_WORDS_PER_COLUMN ; k <= i*MOST_WORDS_PER_COLUMN - i*3; k++){
                 if(KEYWORDS[k]){
                     let div = document.createElement('div');
@@ -196,7 +227,6 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.placeSourceWords = (srcKeywords) => {
         const COLUMN_COUNT = 4;
         const COLUMN_PREFIX = COLUMN_PREFIXES[0];
-        const MOST_WORDS_PER_COLUMN = Math.floor(document.getElementById("detailed-view-wrapper").clientHeight / (1.75*1.25*16));
 
         this.placeWordsInColumns(COLUMN_COUNT, COLUMN_PREFIX, MOST_WORDS_PER_COLUMN, srcKeywords);
     };
@@ -204,15 +234,14 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.placeRecommendationWords = (recommendationKeywords) => {
         const COLUMN_COUNT = 4;
         const COLUMN_PREFIX = COLUMN_PREFIXES[1];
-        const MOST_WORDS_PER_COLUMN = Math.floor(document.getElementById("detailed-view-wrapper").clientHeight / (1.75*1.25*16));
 
         this.placeWordsInColumns(COLUMN_COUNT, COLUMN_PREFIX, MOST_WORDS_PER_COLUMN, recommendationKeywords);
     };
 
     this.placeIdenticalWords = (identicalKeyWords) => {
         const COLUMN_PREFIX = COLUMN_PREFIXES[2];
-        const MOST_WORDS_PER_COLUMN = Math.floor(document.getElementById("detailed-view-wrapper").clientHeight / (1.75*1.25*16));
 
+        //fill center column
         for(let i = 0 ; i < MOST_WORDS_PER_COLUMN ; i++){
             let column = document.getElementsByClassName(COLUMN_PREFIX+3)[0];
             let div = document.createElement('div');
@@ -221,10 +250,12 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
             column.appendChild(div);
         }
 
+        //fill outer columns
         for(let i = 1 ; i<=2 ; i++) {
             let leftColumn = document.getElementsByClassName(COLUMN_PREFIX+(3-i))[0];
             let rightColumn = document.getElementsByClassName(COLUMN_PREFIX+(3+i))[0];
 
+            //now that two columns are being filled at the same time, the upper bound needs to be doubled to keep the view consistent
             for (let k = i*MOST_WORDS_PER_COLUMN; k <  i*MOST_WORDS_PER_COLUMN + 2*MOST_WORDS_PER_COLUMN - (i*6); k++) {
                 if(identicalKeyWords[k]){
                     let div = document.createElement('div');
@@ -238,14 +269,11 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
                     }
                 }
                 else{
+                    //there are no keyword entries left
                     break;
                 }
             }
         }
-
-
-
-
     };
 
 }

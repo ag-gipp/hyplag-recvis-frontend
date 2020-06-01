@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let sourceDocumentData = null;
     let recommendationDocumentData = null;
     let documentComparisonData = null;
-    //temporary solution to deal with callbacks being asynchronus
+    //used to wait for asynchronous requests being complete
     let callbackCounter = 3;
 
     const FEATURE_NAME_CONTAINER_ID_MAPPING = {
@@ -54,6 +54,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 document.getElementById("breadcrumb-file-name").innerHTML = '<a href="' + overviewUrl + '">' + filename + "</a>";
             }
 
+            //retrieve the list of collected documents
             backendApi.getCollectedDocsList(authToken, function (err, result) {
                 if (!err) {
                     initializeNavigation(result);
@@ -65,19 +66,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
             getComparisonData(backendApi, authToken, sourcedoc, targetdoc);
 
 
-            /*
-            This function adds EventListeners to the navigation items, as well as choosing which feature to display by default
-             */
+
+            //this function adds EventListeners to the navigation items, as well as choosing which feature to display by default
             function initializeNavigation(documents) {
                 collectedDocuments = documents.collectedDocs;
-                const ANCHORS = document.getElementsByClassName("nav-link");
+                const NAVIGATION_TAB_ANCHORS = document.getElementsByClassName("nav-link");
                 const FEATURE_CONTAINERS = document.getElementsByClassName("tab-content");
-                console.log(FEATURE_CONTAINERS);
 
-                for (let i = 0; i < ANCHORS.length; i++) {
-                    ANCHORS[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
+                for (let i = 0; i < NAVIGATION_TAB_ANCHORS.length; i++) {
+                    NAVIGATION_TAB_ANCHORS[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
                 }
 
+                //only display content of the first feature container
                 for(let i = 1 ; i < FEATURE_CONTAINERS.length; i++){
                     FEATURE_CONTAINERS[i].style.display = "none";
                 }
@@ -89,9 +89,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         anchor.setAttribute('id', `dropdown_element_${index}`);
                         anchor.appendChild(document.createTextNode(selectedDocument.title));
                         anchor.onclick = (event) => {
+                            //new asynchronous requests to the backend are being made, thus the callbackCounter needs to be reset
                             callbackCounter = 3;
-                            let item = documents.collectedDocs[+event.target.id.slice(-1)];
-                            getComparisonData(backendApi, authToken, sourcedoc, item.documentId);
+                            let selectedDocument = documents.collectedDocs[+event.target.id.slice(-1)];
+                            getComparisonData(backendApi, authToken, sourcedoc, selectedDocument.documentId);
                         };
                         DROP_DOWN_MENU.appendChild(anchor);
                     }
@@ -99,18 +100,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
             function toggleDisplayedFeature(featureName) {
-                const FEATURE_CONMTAINERS = document.getElementsByClassName("tab-content");
+                const FEATURE_CONTAINERS = document.getElementsByClassName("tab-content");
 
                 // hide all elements with class="tab-content"
-                for (let k = 0; k < FEATURE_CONMTAINERS.length; k++) {
-                    FEATURE_CONMTAINERS[k].style.display = "none";
+                for (let k = 0; k < FEATURE_CONTAINERS.length; k++) {
+                    FEATURE_CONTAINERS[k].style.display = "none";
                 }
 
                 // Show the contents of the tab which has triggered the click event
                 document.getElementById(FEATURE_NAME_CONTAINER_ID_MAPPING[featureName]).style.display = "flex";
             }
 
-
+            //this functions requests data about the source document, recommendation document and their comparison data from the backend
             function getComparisonData(backendApi, authToken, sourcedoc, recommendedDoc) {
 
                 const errorHandler = (error) => {
@@ -125,8 +126,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 backendApi.detailedViewCompare(authToken, sourcedoc, recommendedDoc, function (err, comparisonData) {
                     if (!err) {
                         documentComparisonData = comparisonData;
-                        console.log("COMPARISON DATA:");
-                        console.log(documentComparisonData);
                         callbackResolved();
                     } else {
                         errorHandler(err);
@@ -144,7 +143,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
                 backendApi.fetchDocumentFullData(authToken, recommendedDoc, function (err, fullDocData) {
                     if (!err) {
-                        recommendationDocumentData = fullDocData
+                        recommendationDocumentData = fullDocData;
                         callbackResolved();
                     } else {
                         errorHandler(err);
@@ -160,7 +159,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         window.location.replace("/login.html");
     }
 
-    //temporary solution to deal with callbacks being asynchronus
+    //this function either instantiates or updates the feature views once all necessary data has been retrieved
     function callbackResolved() {
         if (--callbackCounter === 0) {
             if (citationComparison && formulaComparison && textComparison && figureComparison) {
@@ -178,6 +177,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 figureComparison = new FigureComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Figures"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 figureComparison.visualizeImageSimilarity();
                 overview = new SelectedDocumentsOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData, collectedDocuments);
+                overview.visualizeOverview();
             }
 
         }

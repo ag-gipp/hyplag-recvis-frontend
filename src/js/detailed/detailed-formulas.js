@@ -31,17 +31,21 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
             targetCaption: "Figure 4.1.2 x"
         },
     ];
-    const SOURCE_FORMULA_CONTAINER = document.getElementById("srcFormula");
-    const RECOMMENDATION_FORMULA_CONTAINER = document.getElementById("targetFormula");
-    const SOURCE_CAPTION = document.getElementById("srcFormulaCaption");
-    const RECOMMENDATION_CAPTION = document.getElementById("recommendationFormulaCaption");
-    const LEFT_NAV_ARROW = document.getElementById("previousFormulaMatch");
-    const RIGHT_NAV_ARROW = document.getElementById("nextFormulaMatch");
-    const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("formulaRangeValue");
+    const SOURCE_FORMULA_CONTAINER = document.getElementById("src-formula");
+    const RECOMMENDATION_FORMULA_CONTAINER = document.getElementById("recommendation-formula");
+    const SOURCE_CAPTION = document.getElementById("src-formula-caption");
+    const RECOMMENDATION_CAPTION = document.getElementById("recommendation-formula-caption");
+    const LEFT_NAV_ARROW = document.getElementById("previous-formula-match");
+    const RIGHT_NAV_ARROW = document.getElementById("next-formula-match");
+    const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("formula-range-value");
     const SOURCE_DOCUMENT_TITLE = document.getElementById("src-document-name");
     const RECOMMENDATION_DOCUMENT_TITLE =  document.getElementById("target-document-name");
     const FORMULA_SIMILARITY_SLIDER =  document.getElementById("formula-range-control-input");
 
+    /*
+    this working copy allows the filtering of data based on the current similarity threshold
+    initially there is no filtering, thus the working copy consist of the entire mock data
+     */
     let mockDataWorkingCopy = FORMULA_DETECTION_MOCK_DATA;
 
     this.visualizeFormulaSimilarity = () => {
@@ -51,8 +55,9 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
         RECOMMENDATION_CAPTION.innerText = mockDataWorkingCopy[0].targetCaption;
         DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
 
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "srcFormula"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "targetFormula"]);
+        //this tells mathjax to update the contents within the given elements -> create the formulas
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "src-formula"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "recommendation-formula"]);
 
         SOURCE_DOCUMENT_TITLE.innerText = this.sourceDocumentData.title;
         RECOMMENDATION_DOCUMENT_TITLE.innerText = this.recommendationDocumentData.title;
@@ -64,17 +69,20 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
         FORMULA_SIMILARITY_SLIDER.addEventListener('input', this.handleFilterValueChange, false);
     };
 
-    //TODO srcDocumentData can be removed everywhere
+
     this.update = (srcDocumentData, recommendationDocumentData) => {
         this.sourceDocumentData = srcDocumentData;
         this.recommendationDocumentData = recommendationDocumentData;
 
         SOURCE_DOCUMENT_TITLE.innerText = this.sourceDocumentData.title;
+        //this is where the recommendation document title is changed on update
         RECOMMENDATION_DOCUMENT_TITLE.innerText = this.recommendationDocumentData.title;
     };
 
     this.leftArrowClicked = (event) => {
+        //at the beginning of mock data?
         if (this.documentNavigationIndex === 0) {
+            //jump to the end
             this.documentNavigationIndex = mockDataWorkingCopy.length - 1;
         } else {
             --this.documentNavigationIndex;
@@ -83,7 +91,9 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
     };
 
     this.rightArrowClicked = (event) => {
+        //at the end of mock data?
         if (this.documentNavigationIndex === mockDataWorkingCopy.length - 1) {
+            //jump to the beginning
             this.documentNavigationIndex = 0;
         } else {
             ++this.documentNavigationIndex;
@@ -91,19 +101,20 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
         this.handleArrowNavigation();
     };
 
+    //once the document index is updated, this function puts the content into the corresponding containers
     this.handleArrowNavigation = () => {
-
         SOURCE_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[this.documentNavigationIndex].srcFormula;
         RECOMMENDATION_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[this.documentNavigationIndex].targetFormula;
 
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "srcFormula"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "targetFormula"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "src-formula"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "recommendation-formula"]);
 
         SOURCE_CAPTION.innerText = mockDataWorkingCopy[this.documentNavigationIndex].srcCaption;
         RECOMMENDATION_CAPTION.innerText = mockDataWorkingCopy[this.documentNavigationIndex].targetCaption;
         DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[this.documentNavigationIndex].similarityScore;
     };
 
+    //positions the slider bubble and updates its value
     this.updateSliderBubble = (value) => {
         const FORMULA_SLIDER_VALUE = document.getElementById('math-slider-value');
 
@@ -111,11 +122,13 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
         FORMULA_SLIDER_VALUE.style.left = `${value*100}%`;
     };
 
+    //called when the slider is being adjusted
     this.handleFilterValueChange = (event) => {
         const MIN_SIMILARITY_SCORE = event.target.value / 100;
 
         this.updateSliderBubble(MIN_SIMILARITY_SCORE);
 
+        //here the filtering takes place which in turn allows the visualizeFormula function to only display the filtered content
         mockDataWorkingCopy = FORMULA_DETECTION_MOCK_DATA
             .filter((formulaMatch) => {
                 return formulaMatch.similarityScore >= MIN_SIMILARITY_SCORE

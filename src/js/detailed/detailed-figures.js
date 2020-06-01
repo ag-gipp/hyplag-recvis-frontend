@@ -23,13 +23,13 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
         },
     ];
     const FIGURES_CONTENT_CONTAINER = document.getElementById("figures-content-container");
-    const SOURCE_FIGURE_CONTAINER = document.getElementById("sourceDocFigure");
-    const RECOMMENDATION_FIGURE_CONTAINER = document.getElementById("recommendationDocFigure");
-    const SOURCE_FIGURE_CAPTION = document.getElementById("srcCaption");
-    const RECOMMENDATION_FIGURE_CAPTION = document.getElementById("recommendationCaption");
+    const SOURCE_FIGURE_CONTAINER = document.getElementById("source-doc-figure");
+    const RECOMMENDATION_FIGURE_CONTAINER = document.getElementById("recommendation-doc-figure");
+    const SOURCE_FIGURE_CAPTION = document.getElementById("src-caption");
+    const RECOMMENDATION_FIGURE_CAPTION = document.getElementById("recommendation-caption");
     const FIGURES_LIST = document.getElementById("src-figures-list");
     const FIGURE_SIMILARITY_SLIDER = document.getElementById("figure-similarity-input");
-    const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("rangeValue");
+    const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("range-value");
     const HEATMAP_CHECKBOX = document.getElementById("heatmap-overlay-checkbox");
 
     let mockDataWorkingCopy = FIGURE_DETECTION_MOCK_DATA;
@@ -81,6 +81,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
         DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
     };
 
+    //if checkbox was checked during document selection, update draws a new overly for the new comparison
     this.update = () => {
         d3.select("#figures_svg").remove();
         if(HEATMAP_CHECKBOX.checked){
@@ -88,6 +89,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
         }
     };
 
+    //puts an absolutely positioned svg on top of the figure comparison and draws similarity circles
     this.drawSvgHeatmap = () => {
         const SVG_WIDTH = FIGURES_CONTENT_CONTAINER.clientWidth;
         const SVG_HEIGHT = FIGURES_CONTENT_CONTAINER.clientHeight;
@@ -107,19 +109,22 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
 
         let radialGradient = svg.append("defs")
             .append("radialGradient")
-            .attr("id", "radial-gradient");
+                .attr("id", "radial-gradient");
 
-        radialGradient.append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", RADIAL_GRADIENT_CENTER);
+        radialGradient
+            .append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", RADIAL_GRADIENT_CENTER);
 
-        radialGradient.append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", RADIAL_GRADIENT_OUTSIDE);
+        radialGradient
+            .append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", RADIAL_GRADIENT_OUTSIDE);
 
         //returns a value between [min, max]
         let randomCoordinate = (min, max) => { return Math.min(min + Math.round(Math.random()*max) , max);};
 
+        //circle on top of the source figure
         svg
             .append("circle")
                 .attr("cx", randomCoordinate(SOURCE_CIRCLE_RADIUS, SVG_WIDTH/2 - SOURCE_CIRCLE_RADIUS))
@@ -128,6 +133,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
                 .attr("r",SOURCE_CIRCLE_RADIUS)
                 .attr("fill","url(#radial-gradient)");
 
+        //circle on top of the recommendation figure
         svg
             .append("circle")
                 .attr("cx", randomCoordinate(SVG_WIDTH/2 + RECOMMENDATION_CIRCLE_RADIUS, SVG_WIDTH - RECOMMENDATION_CIRCLE_RADIUS))
@@ -151,7 +157,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
             FIGURES_LIST.removeChild(FIGURES_LIST.lastChild);
         }
 
-        //append new entries
+        //append new (filtered) entries
         this.appendFigureMatchesToDropdown();
 
         //display entry 0 of matchDataWorkingCopy on the page

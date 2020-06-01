@@ -7,41 +7,48 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
 
     const CITATION_CHECKBOXES = document.getElementsByClassName("citation-algorithm-selection");
     const POSSIBLE_ALGORITHMS = ['cc','gct','lccs','lccsdist'];
+    const CONTAINER_ID = "Citation-Content-Container";
 
-
-    this.initializeCitationSelection = () => {
+    //allows the user to filter results based on different algorithms
+    this.initializeCitationAlgorithmSelection = () => {
         for(let i = 0 ; i< CITATION_CHECKBOXES.length; i++){
             let currentBox = CITATION_CHECKBOXES[i];
-            currentBox.addEventListener('change', (event) => {this.handleCitationSelectionChange()}, false);
+            currentBox.addEventListener('change', () => {this.handleCitationSelectionChange()}, false);
 
+            //add all the initially (on page load) checked algorithms to the selectedAlgorithms array
             if(currentBox.checked)
                 this.selectedAlgorithms.push(POSSIBLE_ALGORITHMS[i]);
         }
     };
 
-    this.initializeCitationSelection();
-
+    this.initializeCitationAlgorithmSelection();
 
     this.visualizeCitationSimilarity = () => {
-        const CONTAINER_ID = "Citation-Content-Container";
+        const COMPARISON_DATA = this.getCitationComparisonData();
         const CIRCLE_PADDING = 20;
         const SVG_WIDTH = 960;
         const SVG_HEIGHT = 960;
-        const COMPARISON_DATA = this.getCitationComparisonData();
 
         if (COMPARISON_DATA) {
-            let boundingBox = d3.pack().size([SVG_WIDTH, SVG_HEIGHT]).padding(CIRCLE_PADDING),
-                root = d3.hierarchy({children: COMPARISON_DATA}).sum(function (d) {
-                    return d.children ? 0 : d[2]
-                });
+            let boundingBox = d3
+                    .pack()
+                    .size([SVG_WIDTH, SVG_HEIGHT])
+                    .padding(CIRCLE_PADDING),
+                //d[2] is the maximum length of two citation matches strings, thus the size of a bubble depends on the length of its longest string
+                root = d3
+                    .hierarchy({children: COMPARISON_DATA})
+                    .sum(function (d) {
+                        return d.children ? 0 : d[2]
+                    });
 
             let nodeData = boundingBox(root).children;
 
             if (nodeData) {
 
-                let zoom = d3.zoom().on("zoom", function () {
-                    g.attr("transform", d3.event.transform);
-                });
+                let zoom = d3.zoom()
+                    .on("zoom", function () {
+                        g.attr("transform", d3.event.transform);
+                    });
 
                 let zoomedIn = false;
 
@@ -49,21 +56,24 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                 const svg = d3
                     .select(`#${CONTAINER_ID}`)
                     .append("svg")
-                    .attr("width", SVG_WIDTH)
-                    .attr("height", SVG_HEIGHT)
-                    .attr("id", "citation_svg")
-                    .attr("class", "bubble");
+                        .attr("width", SVG_WIDTH)
+                        .attr("height", SVG_HEIGHT)
+                        .attr("id", "citation_svg")
+                        .attr("class", "bubble");
 
-                let g = svg.append("g").call(zoom)
-                    .on("wheel.zoom", null);
+                let g = svg
+                    .append("g")
+                    .call(zoom)
+                        .on("wheel.zoom", null);
 
-                const upperCircleGroup = g.append("g").attr('transform', `translate(0,${-CIRCLE_PADDING + 5})`);
-                const lowerCircleGroup = g.append("g");
-
-
+                const upperSemiCircleGroup = g
+                    .append("g")
+                        .attr('transform', `translate(0,${-CIRCLE_PADDING + 5})`);
+                const lowerSemiCircleGroup = g.
+                    append("g");
 
                 nodeData.forEach(function (data, index) {
-                    let gUpper = upperCircleGroup
+                    let gUpper = upperSemiCircleGroup
                         .append("g")
                             .attr("id", () => {
                                 return "upperG_" + index
@@ -79,7 +89,7 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                                 }
                             });
 
-                    let gLower = lowerCircleGroup
+                    let gLower = lowerSemiCircleGroup
                         .append("g")
                             .attr("id", () => {
                                 return "lowerG_" + index
@@ -95,107 +105,101 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                                 }
                     });
 
-                    let lowerCircle = gLower.append('path')
-                        .attr('d', d3.arc()({
-                            innerRadius: 0,
-                            outerRadius: data.r,
-                            startAngle: Math.PI / 2,
-                            endAngle: 3 / 2 * Math.PI
-                        }))
-                        .attr('transform', `translate(${data.x},${data.y})`)
-                        .attr('fill', '#ffffff')
-                        .attr('stroke', 'black')
-                        .attr("id", () => {
-                            return "lowerCircle_" + index
-                        })
-                        .on("mouseover", function () {
-                            d3.select(this).attr("stroke", "red");
-                        })
-                        .on("mouseout", function () {
-                            d3.select(this).attr("stroke", "black");
-                        });
+                    //this is where the actual lower circle half of a node is drawn using a path
+                    let lowerSemiCircle = gLower
+                        .append('path')
+                            .attr('d', d3.arc()({
+                                innerRadius: 0,
+                                outerRadius: data.r,
+                                startAngle: Math.PI / 2,
+                                endAngle: 3 / 2 * Math.PI
+                            }))
+                            .attr('transform', `translate(${data.x},${data.y})`)
+                            .attr('fill', '#ffffff')
+                            .attr('stroke', 'black')
+                            .attr("id", () => {
+                                return "lowerCircle_" + index
+                            })
+                            .on("mouseover", function () {
+                                d3.select(this).attr("stroke", "red");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this).attr("stroke", "black");
+                            });
 
-                    let upperCircle = gUpper.append('path')
-                        .attr('d', d3.arc()({
-                            innerRadius: 0,
-                            outerRadius: data.r,
-                            startAngle: 1 / 2 * Math.PI,
-                            endAngle: -1 / 2 * Math.PI
-                        }))
-                        .attr('transform', `translate(${data.x},${data.y})`)
-                        .attr('fill', '#e5e5e5')
-                        .attr('stroke', 'black')
-                        .attr("id", () => {
-                            return "upperCircle_" + index
-                        })
-                        .on("mouseover", function () {
-                            d3.select(this).attr("stroke", "red");
-                        })
-                        .on("mouseout", function () {
-                            d3.select(this).attr("stroke", "black");
-                        })
-                        .on("click", () => {
+                    //upper half of the circle drawn
+                    let upperSemiCircle = gUpper
+                        .append('path')
+                            .attr('d', d3.arc()({
+                                innerRadius: 0,
+                                outerRadius: data.r,
+                                startAngle: 1 / 2 * Math.PI,
+                                endAngle: -1 / 2 * Math.PI
+                            }))
+                            .attr('transform', `translate(${data.x},${data.y})`)
+                            .attr('fill', '#e5e5e5')
+                            .attr('stroke', 'black')
+                            .attr("id", () => {
+                                return "upperCircle_" + index
+                            })
+                            .on("mouseover", function () {
+                                d3.select(this).attr("stroke", "red");
+                            })
+                            .on("mouseout", function () {
+                                d3.select(this).attr("stroke", "black");
+                            });
 
-                        });
-
-
-                    //http://www.stumblingrobot.com/2015/10/06/find-the-largest-rectangle-that-can-be-inscribed-in-a-semicircle/
+                    /*
+                    The text is a div element (rectangle) which is scaled to fit into the semi-circle.
+                    Text elements can not be appended to a path, but this allows to fill the div's innerHTML with our data
+                    For more background on the math, check:
+                    http://www.stumblingrobot.com/2015/10/06/find-the-largest-rectangle-that-can-be-inscribed-in-a-semicircle/
+                    */
                     let upperText = gUpper
                         .append("foreignObject")
-                        .attr("width", () => {
-                            return data.r * Math.sqrt(2)
-                        })
-                        .attr("height", () => {
-                            return data.r * (Math.sqrt(2) / 2)
-                        })
-                        .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y - (data.r / Math.sqrt(2))})`)
-                        .html(() => {
-                            return data.data[0]
-                        })
-                        .style("font-size", () => {
-                            return Math.sqrt(data.data[0].length) * data.r / (data.data[0].length) + "px";
-                        })
-                        .on("mouseover", function () {
-                            d3.select("#upperCircle_" + index).attr("stroke", "red");
-                        })
-                        .on("mouseout", function () {
-                            d3.select("#upperCircle_" + index).attr("stroke", "black");
-                        });
+                            .attr("width", () => {
+                                return data.r * Math.sqrt(2)
+                            })
+                            .attr("height", () => {
+                                return data.r * (Math.sqrt(2) / 2)
+                            })
+                            .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y - (data.r / Math.sqrt(2))})`)
+                            .html(() => {
+                                return data.data[0]
+                            })
+                            .style("font-size", () => {
+                                //an approach to scale the font-size based on the string length to always fit the content into its parent container
+                                //this works well for short and medium size strings, but the font scale becomes too small for long strings
+                                return Math.sqrt(data.data[0].length) * data.r / (data.data[0].length) + "px";
+                            })
+                            .on("mouseover", function () {
+                                d3.select("#upperCircle_" + index).attr("stroke", "red");
+                            })
+                            .on("mouseout", function () {
+                                d3.select("#upperCircle_" + index).attr("stroke", "black");
+                            });
 
                     let lowerText = gLower
                         .append("foreignObject")
-                        .attr("width", () => {
-                            return data.r * Math.sqrt(2)
-                        })
-                        .attr("height", () => {
-                            return data.r * (Math.sqrt(2) / 2)
-                        })
-                        .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y})`)
-                        .html(() => {
-                            return data.data[1]
-                        })
-                        .style("font-size", () => {
-                            return Math.sqrt(data.data[1].length) * data.r / (data.data[1].length) + "px";
-                        })
-                        .on("mouseover", function () {
-                            d3.select("#lowerCircle_" + index).attr("stroke", "red");
-                        })
-                        .on("mouseout", function () {
-                            d3.select("#lowerCircle_" + index).attr("stroke", "black");
-                        });
-
-                    let calculateAbsoluteSpanPosition = function getPos(el) {
-                        // yay readability
-                        let lx = 0, ly = 0;
-                        do{
-                            lx += el.offsetTop;
-                            ly += el.offsetTop;
-                            el = el.parentElement;
-
-                        }while(el.parentElement);
-
-                        return [lx, ly];
-                    }
+                            .attr("width", () => {
+                                return data.r * Math.sqrt(2)
+                            })
+                            .attr("height", () => {
+                                return data.r * (Math.sqrt(2) / 2)
+                            })
+                            .attr('transform', `translate(${data.x - (data.r / Math.sqrt(2))},${data.y})`)
+                            .html(() => {
+                                return data.data[1]
+                            })
+                            .style("font-size", () => {
+                                return Math.sqrt(data.data[1].length) * data.r / (data.data[1].length) + "px";
+                            })
+                            .on("mouseover", function () {
+                                d3.select("#lowerCircle_" + index).attr("stroke", "red");
+                            })
+                            .on("mouseout", function () {
+                                d3.select("#lowerCircle_" + index).attr("stroke", "black");
+                            });
 
                     /*
                     let lowerSpan = lowerText[Object.keys(lowerText)[0]][0][0].children[0];
@@ -213,25 +217,26 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
 
     };
 
-    this.update = (updatedSourceDocumentData, updatedTargetDocumentData, updatedDocumentComparisonData) => {
+    //updates the visualization
+    this.update = (sourceDocumentData, recommendationDocumentData, documentComparisonData) => {
         d3.select("#citation_svg").remove();
-        console.log(updatedSourceDocumentData, updatedTargetDocumentData, updatedDocumentComparisonData);
-        this.sourceDocumentData = updatedSourceDocumentData;
-        this.targetDocumentData = updatedTargetDocumentData;
-        this.documentComparisonData = updatedDocumentComparisonData;
+        this.sourceDocumentData = sourceDocumentData;
+        this.targetDocumentData = recommendationDocumentData;
+        this.documentComparisonData = documentComparisonData;
 
         this.visualizeCitationSimilarity();
     };
 
+    //handler for the algorithm checkboxes
     this.handleCitationSelectionChange = (event) => {
         let selectedAlgorithms = [];
+
         for(let i = 0 ; i < CITATION_CHECKBOXES.length ; i++){
             if(CITATION_CHECKBOXES[i].checked)
                 selectedAlgorithms.push(POSSIBLE_ALGORITHMS[i]);
         }
 
         this.selectedAlgorithms = selectedAlgorithms;
-        console.log(this.selectedAlgorithms);
         d3.select("#citation_svg").remove();
 
         this.visualizeCitationSimilarity();
@@ -240,10 +245,10 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
 
     this.getCitationComparisonData = () => {
         let detectionResults = [];
-        let uniqueDetectionResults;
         let returnValue = [];
 
         if (this.documentComparisonData) {
+            //for each algorithm, get the citation matches (this will likely add duplicate entries)
             for (let i = 0; i < this.selectedAlgorithms.length; i++) {
                 const ALGORITHM_DATA = this.documentComparisonData[this.selectedAlgorithms[i]];
                 if (ALGORITHM_DATA && ALGORITHM_DATA.length > 0) {
@@ -254,20 +259,22 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                     }
                 }
             }
-            //TODO: add bibliographic coupling.. kinda weird as it can have different sized array
         } else {
             utilityLib.informUser("alert-danger", "Comparison data retrieval has failed.");
             return null;
         }
 
-        uniqueDetectionResults = new Set(detectionResults);
-        console.log(uniqueDetectionResults);
+        //filter out duplicates
+        detectionResults = new Set(detectionResults);
 
-        uniqueDetectionResults.forEach((detectionEntry) => {
+        detectionResults.forEach((detectionEntry) => {
+            //split into source and recommendation information
             let documentIntervals = detectionEntry.split("=");
-            let srcDocumentInterval = documentIntervals[0].split(":").map(x => +x);
-            let targetDocumentInterval = documentIntervals[1].split(":").map(x => +x);
-            const comparisonData = this.getDocumentDataFromPositions(srcDocumentInterval[0], srcDocumentInterval[1], targetDocumentInterval[0], targetDocumentInterval[1]);
+            //retrieve source match start and end
+            let [srcDocumentStartIndex, srcDocumentEndIndex] = documentIntervals[0].split(":").map(x => +x);
+            //retrieve recommendation match start and end
+            let [recommendationDocumentStartIndex, recommendationDocumentEndIndex] = documentIntervals[1].split(":").map(x => +x);
+            const comparisonData = this.getDocumentDataFromPositions(srcDocumentStartIndex, srcDocumentEndIndex, recommendationDocumentStartIndex, recommendationDocumentEndIndex);
             if (!comparisonData) return null;
             returnValue.push(comparisonData);
         });
@@ -275,95 +282,83 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
         return returnValue;
     };
 
-    this.getDocumentDataFromPositions = (srcDocumentBeginning, srcDocumentEnd, targetDocumentBeginning, targetDocumentEnd) => {
+    this.getDocumentDataFromPositions = (srcDocumentMatchStart, srcDocumentMatchEnd, recommendationDocumentMatchStart, recommendationDocumentMatchEnd) => {
         if (!this.sourceDocumentData || !this.targetDocumentData) {
-            //utilityLib.informUser("alert-danger", "Data can not be retrieved from files.");
             return null;
         }
 
+        let srcSentenceStartIndex, srcSentenceEndIndex, recommendationSentenceStartIndex, recommendationSentenceEndIndex;
+        //these documents consist of both normal text, as  well as html and xml tags
+        const SOURCE_DOCUMENT_STRING_REPRESENTATION = this.sourceDocumentData.contentBody;
+        const RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION = this.targetDocumentData.contentBody;
 
-        let srcLowerBound, srcUpperBound, targetLowerBound, targetUpperBound;
-        let sourceDocumentStringRepresentation = this.sourceDocumentData.contentBody;
-        let targetDocumentStringRepresentation = this.targetDocumentData.contentBody;
+        let sourceMatch = SOURCE_DOCUMENT_STRING_REPRESENTATION.slice(srcDocumentMatchStart, srcDocumentMatchEnd);
+        let recommendationMatch = RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION.slice(recommendationDocumentMatchStart, recommendationDocumentMatchEnd);
 
-        let srcEntry = sourceDocumentStringRepresentation.slice(srcDocumentBeginning, srcDocumentEnd);
-        let targetEntry = targetDocumentStringRepresentation.slice(targetDocumentBeginning, targetDocumentEnd);
-
-        //TODO: put into function
-        for (let k = srcDocumentBeginning; k > 0; k--) {
-            if (sourceDocumentStringRepresentation[k - 1] === "." || sourceDocumentStringRepresentation[k - 1] === "!" || sourceDocumentStringRepresentation[k - 1] === "?") {
-                if (sourceDocumentStringRepresentation[k].match(/\s/)) {
-                    //special case of i.e. ; still missing Dr. so it is not really solved
-                    if (!(sourceDocumentStringRepresentation[k - 2] === "e") && !(sourceDocumentStringRepresentation[k - 3] === ".")) {
-                        srcLowerBound = k;
-                        break;
+        //tries to find the index of the beginning of a sentence
+        let findSentenceBeginning = (stringRepresentation, startIndex) => {
+            for (let k = startIndex; k > 0; k--) {
+                if (stringRepresentation[k - 1] === "." || stringRepresentation[k - 1] === "!" || stringRepresentation[k - 1] === "?") {
+                    if (stringRepresentation[k].match(/\s/)) {
+                        //special case of i.e. ; still missing hundreds of other special cases
+                        if (!(stringRepresentation[k - 2] === "e") && !(stringRepresentation[k - 3] === ".")) {
+                            return k;
+                        }
                     }
                 }
-            } else if (sourceDocumentStringRepresentation[k - 1] === ">") {
-                if (sourceDocumentStringRepresentation[k - 2] === "p") {
-                    srcLowerBound = k;
-                    break;
-                }
-            }
-        }
-
-        for (let k = --srcDocumentEnd; k < sourceDocumentStringRepresentation.length; k++) {
-            if (sourceDocumentStringRepresentation[k + 1] === "." || sourceDocumentStringRepresentation[k + 1] === "!" || sourceDocumentStringRepresentation[k + 1] === "?") {
-                if (sourceDocumentStringRepresentation[k + 2].match(/\s/)) {
-                    srcUpperBound = ++k;
-                    break;
-                }
-            }
-        }
-
-        for (let k = targetDocumentBeginning; k > 0; k--) {
-            if (targetDocumentStringRepresentation[k - 1] === "." || targetDocumentStringRepresentation[k - 1] === "!" || targetDocumentStringRepresentation[k - 1] === "?") {
-                if (targetDocumentStringRepresentation[k].match(/\s/)) {
-                    //special case of i.e. ; still missing similar things like Dr. so it is not really solved
-                    if (!(targetDocumentStringRepresentation[k - 2] === "e") && !(targetDocumentStringRepresentation[k - 3] === ".")) {
-                        targetLowerBound = k;
-                        break;
+                //check if opening <p> tag is reached
+                else if (stringRepresentation[k - 1] === ">") {
+                    if (stringRepresentation[k - 2] === "p") {
+                        return k;
                     }
                 }
-            } else if (targetDocumentStringRepresentation[k - 1] === ">") {
-                if (targetDocumentStringRepresentation[k - 2] === "p") {
-                    targetLowerBound = k;
-                    break;
-                }
             }
-        }
-
-        for (let k = --targetDocumentEnd; k < targetDocumentStringRepresentation.length; k++) {
-            if (targetDocumentStringRepresentation[k + 1] === "." || targetDocumentStringRepresentation[k + 1] === "!" || targetDocumentStringRepresentation === "?") {
-                if (targetDocumentStringRepresentation[k + 2].match(/\s/)) {
-                    targetUpperBound = ++k;
-                    break;
-                }
-            }
-        }
-
-        let srcSentence = sourceDocumentStringRepresentation.substring(srcLowerBound, srcUpperBound + 1);
-        let targetSentence = targetDocumentStringRepresentation.substring(targetLowerBound, targetUpperBound + 1);
-
-        console.log(targetDocumentStringRepresentation.substring(targetDocumentBeginning, targetDocumentEnd))
-
-        const srcCitationStart = srcSentence.indexOf(srcEntry);
-        const srcCitationEnd = srcSentence.indexOf(srcEntry) + srcEntry.length;
-        const targetCitationStart = targetSentence.indexOf(targetEntry);
-        const targetCitationEnd = targetSentence.indexOf(targetEntry) + targetEntry.length;
-
-        let replaceStringAtIndex = (startIndex, endIndex, myString) => {
-            let prior = myString.substring(0, startIndex).replace(/(<([^>]+)>)/ig, '');
-            let following = myString.substring(endIndex).replace(/(<([^>]+)>)/ig, '');
-
-            let subject = `<span class="citationTarget">${myString.slice(startIndex, endIndex).replace(/(<([^>]+)>)/ig, '')}</span>`;
-            return prior + subject + following;
         };
 
-        srcSentence = replaceStringAtIndex(srcCitationStart, srcCitationEnd, srcSentence);
-        targetSentence = replaceStringAtIndex(targetCitationStart, targetCitationEnd, targetSentence);
+        //tries to find the index of the end of a sentence
+        let findSentenceEnd = (stringRepresentation, startIndex) => {
+            for (let k = --startIndex; k < stringRepresentation.length; k++) {
+                if (stringRepresentation[k + 1] === "." || stringRepresentation[k + 1] === "!" || stringRepresentation[k + 1] === "?") {
+                    if (stringRepresentation[k + 2].match(/\s/)) {
+                        return ++k;
+                    }
+                }
+                //closing html tag
+                else if((stringRepresentation[k + 1] === "<") && (stringRepresentation[k + 2].match(/\\$/))){
+                    return k;
+                }
+            }
+        };
 
+        srcSentenceStartIndex = findSentenceBeginning(SOURCE_DOCUMENT_STRING_REPRESENTATION, srcDocumentMatchStart);
+        recommendationSentenceStartIndex = findSentenceBeginning(RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION, recommendationDocumentMatchStart);
+        srcSentenceEndIndex = findSentenceEnd(SOURCE_DOCUMENT_STRING_REPRESENTATION, srcDocumentMatchEnd);
+        recommendationSentenceEndIndex = findSentenceEnd(RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION, recommendationDocumentMatchEnd);
 
+        //this is where we retrieve the entire sentence
+        let srcSentence = SOURCE_DOCUMENT_STRING_REPRESENTATION.substring(srcSentenceStartIndex, srcSentenceEndIndex + 1);
+        let targetSentence = RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION.substring(recommendationSentenceStartIndex, recommendationSentenceEndIndex + 1);
+
+        //here we get the index of the citation match within our sentence
+        const SRC_SENTENCE_CITATION_START = srcSentence.indexOf(sourceMatch);
+        const SRC_SENTENCE_CITATION_END = srcSentence.indexOf(sourceMatch) + sourceMatch.length;
+        const RECOMMENDATION_SENTENCE_CITATION_START = targetSentence.indexOf(recommendationMatch);
+        const RECOMMENDATION_SENTENCE_CITATION_END = targetSentence.indexOf(recommendationMatch) + recommendationMatch.length;
+
+        //this function creates a span around or citation match which is then used ofr highlighting
+        let replaceStringAtIndex = (startIndex, endIndex, myString) => {
+            //replace gets rid of all unwanted html and xml tags within our filtered data
+            let preCitationContent = myString.substring(0, startIndex).replace(/(<([^>]+)>)/ig, '');
+            let postCitationContent = myString.substring(endIndex).replace(/(<([^>]+)>)/ig, '');
+
+            let citationContent = `<span class="citationTarget">${myString.slice(startIndex, endIndex).replace(/(<([^>]+)>)/ig, '')}</span>`;
+            return preCitationContent + citationContent + postCitationContent;
+        };
+
+        srcSentence = replaceStringAtIndex(SRC_SENTENCE_CITATION_START, SRC_SENTENCE_CITATION_END, srcSentence);
+        targetSentence = replaceStringAtIndex(RECOMMENDATION_SENTENCE_CITATION_START, RECOMMENDATION_SENTENCE_CITATION_END, targetSentence);
+
+        //the third parameter is used for the d3 visualization; the bigger this value, the bigger the size of a circle
         return [srcSentence, targetSentence, Math.max(srcSentence.length, targetSentence.length)];
     }
 }
