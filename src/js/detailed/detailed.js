@@ -59,7 +59,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (!err) {
                     initializeNavigation(result);
                 } else {
-                    console.log("Could not fetch document data");
+                    utilityLib.informUser("alert-danger", err);
                 }
             });
 
@@ -164,9 +164,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (--callbackCounter === 0) {
             if (citationComparison && formulaComparison && textComparison && figureComparison) {
                 citationComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
-                formulaComparison.update(sourceDocumentData, recommendationDocumentData);
-                textComparison.update(sourceDocumentData, recommendationDocumentData);
-                figureComparison.update();
+                formulaComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
+                textComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
+                figureComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
             } else {
                 citationComparison = new CitationComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Citations"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 citationComparison.visualizeCitationSimilarity();

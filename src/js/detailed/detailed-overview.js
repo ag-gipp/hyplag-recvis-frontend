@@ -39,8 +39,12 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
             });
 
             selectedAlgorithms.forEach((algorithmName) => {
-                children.push({"name": algorithmName, size: getRandomValue(25)})
+                children.push({name: algorithmName, size: getRandomValue(25)})
             });
+
+            if(selectedAlgorithms.length === 0){
+                children.push({name: "no matches found", size: 1})
+            }
 
             return children;
         };
@@ -99,31 +103,46 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
             .enter()
             .append("circle")
                 .attr("class", function (d) {
-                    return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
+                    if(d.depth === 3){
+                        return "node node--leaf"
+                    }
+                    else if(d.depth === 0){
+                        return "node node--root";
+                    }
+                    else{
+                        return "node";
+                    }
                 })
                 .style("fill", function (d) {
                     return d.parent ? d.children ? color(d.depth) : "white" : "white"
                 })
                 .on("click", function (d) {
                     if (focus !== d) zoom(d), d3.event.stopPropagation();
-                });
-
+                })
+            .on("mouseover", function (d,i) {
+                if(d.depth === 1 || d.depth === 2){
+                    d3.select("#text_"+i)["_groups"][0][0].style["fill-opacity"] = 1;
+                }
+            })
+            .on("mouseout",function (d,i) {
+                if(d.depth === 1 || d.depth === 2){
+                    d3.select("#text_"+i)["_groups"][0][0].style["fill-opacity"] = 0;
+                }
+            });
 
         let text = g.selectAll("text")
             .data(nodes)
             .enter()
             .append("text")
                 .attr("class", "overview-label")
-                .style("fill-opacity", function (d) {
-                    return d.parent === root ? 1 : 0;
+                .attr("id",function (d,i) {
+                    return "text_" + i;
                 })
-                .style("display", function (d) {
-                    return d.parent === root ? "inline" : "none";
-                })
+                //hide all text initially
+                .style("fill-opacity", 0)
                 .text(function (d) {
                     return d.data.name;
                 });
-
 
         let node = g.selectAll("circle,text");
 
@@ -155,7 +174,8 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
                     return d.parent === focus || this.style.display === "inline";
                 })
                 .style("fill-opacity", function (d) {
-                    return d.parent === focus ? 1 : 0;
+                    //only display text at depth 3 within the bubbles
+                    return d.parent === focus && d.depth === 3 ? 1 : 0;
                 })
                 .on("start", function (d) {
                     if (d.parent === focus) this.style.display = "inline";
@@ -168,7 +188,14 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
         function zoomTo(v) {
             let k = DIAMETER / v[2];
             view = v;
-            node.attr("transform", function (d) {
+            const offsetTop = 5;
+            node.attr("transform", function (d,i) {
+                if(i >= nodes.length/2){
+                    if(d.depth === 1 || d.depth === 2){
+                        //set the text on top of the bubbles
+                        return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1] - d.r - offsetTop) * k + ")";
+                    }
+                }
                 return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")";
             });
             circle.attr("r", function (d) {

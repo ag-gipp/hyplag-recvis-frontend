@@ -51,7 +51,7 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     };
 
     //resets each column and triggers visualization anew
-    this.update = (updatedSourceDocumentData, updatedTargetDocumentData) => {
+    this.update = (updatedSourceDocumentData, updatedTargetDocumentData, documentComparisonData) => {
         this.sourceDocumentData = updatedSourceDocumentData;
         this.targetDocumentData = updatedTargetDocumentData;
         this.clearColumns();

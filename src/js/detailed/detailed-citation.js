@@ -50,7 +50,13 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                         g.attr("transform", d3.event.transform);
                     });
 
-                let zoomedIn = false;
+                let zoomedIn = false,
+                    zoomedSemiCircle = "";
+
+                let resetZoomParams = () => {
+                    zoomedIn = false;
+                    zoomedSemiCircle = "";
+                };
 
                 //create SVG inside the feature container
                 const svg = d3
@@ -61,10 +67,25 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                         .attr("id", "citation_svg")
                         .attr("class", "bubble");
 
+                //this mask enables clicking on top of the svg to reset zoom
+                const SVG_CLICK_MASK = svg
+                    .append('rect')
+                        .attr("width", SVG_WIDTH)
+                        .attr("height", SVG_HEIGHT)
+                        .attr("fill","white")
+                        .style("opacity", 0)
+                        .on("click", () => {
+                            if(zoomedIn){
+                                d3.select("#" + zoomedSemiCircle).transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+                                resetZoomParams();
+                            }
+                        })
+                    .append("svg:title").text(() => {return "clicking on canvas resets the zoom level"});
+
                 let g = svg
                     .append("g")
                     .call(zoom)
-                        .on("wheel.zoom", null);
+                    .on("wheel.zoom", null);
 
                 const upperSemiCircleGroup = g
                     .append("g")
@@ -72,21 +93,27 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                 const lowerSemiCircleGroup = g.
                     append("g");
 
+                let handleSemiCircleClick = (semiCircleId, x, y) => {
+                    let semiCircle = d3.select("#" + semiCircleId);
+                    if(!zoomedIn){
+                        zoomedIn = true;
+                        zoomedSemiCircle = semiCircleId;
+                        semiCircle.call(zoom.translateTo, x , y).call(zoom.scaleTo, 2);
+                    }
+                    else{
+                        resetZoomParams();
+                        semiCircle.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+                    }
+                };
+
                 nodeData.forEach(function (data, index) {
                     let gUpper = upperSemiCircleGroup
                         .append("g")
                             .attr("id", () => {
                                 return "upperG_" + index
                             })
-                            .on('click', () => {
-                                if(!zoomedIn){
-                                    zoomedIn = true;
-                                    gUpper.call(zoom.translateTo, data.x , data.y).call(zoom.scaleTo, 2);
-                                }
-                                else{
-                                    zoomedIn = false;
-                                    gUpper.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
-                                }
+                            .on('click', function() {
+                                handleSemiCircleClick("upperG_" + index, data.x, data.y)
                             });
 
                     let gLower = lowerSemiCircleGroup
@@ -95,14 +122,7 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                                 return "lowerG_" + index
                             })
                             .on('click', () => {
-                                if(!zoomedIn){
-                                    zoomedIn = true;
-                                    gLower.call(zoom.translateTo, data.x , data.y).call(zoom.scaleTo, 2);
-                                }
-                                else{
-                                    zoomedIn = false;
-                                    gLower.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
-                                }
+                               handleSemiCircleClick("lowerG_" + index, data.x, data.y)
                     });
 
                     //this is where the actual lower circle half of a node is drawn using a path

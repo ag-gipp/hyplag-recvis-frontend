@@ -70,7 +70,7 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
     };
 
 
-    this.update = (srcDocumentData, recommendationDocumentData) => {
+    this.update = (srcDocumentData, recommendationDocumentData, documentComparisonData) => {
         this.sourceDocumentData = srcDocumentData;
         this.recommendationDocumentData = recommendationDocumentData;
 

@@ -82,7 +82,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
     };
 
     //if checkbox was checked during document selection, update draws a new overly for the new comparison
-    this.update = () => {
+    this.update = (sourceDocumentData, recommendationDocumentData, documentComparisonData) => {
         d3.select("#figures_svg").remove();
         if(HEATMAP_CHECKBOX.checked){
             this.drawSvgHeatmap();
