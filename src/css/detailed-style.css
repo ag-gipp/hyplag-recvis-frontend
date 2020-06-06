@@ -483,7 +483,7 @@ input[type=range]:focus::-moz-range-track {
 
 
 .overview-label {
-    font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-anchor: middle;
     text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
     position: relative;

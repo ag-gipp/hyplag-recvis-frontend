@@ -13,6 +13,9 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
             g = svg.append("g")
                 .attr("transform", "translate(" + DIAMETER / 2  + "," + DIAMETER / 2 + ")");
 
+        //do not cut off document titles that slightly get out of bounds
+        svg.style("overflow","visible");
+
         let color = d3.scaleLinear()
             .domain([-1, 5])
             .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
