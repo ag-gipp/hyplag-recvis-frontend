@@ -186,7 +186,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 textComparison.visualizeTextSimilarity();
                 figureComparison = new FigureComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Figures"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 figureComparison.visualizeImageSimilarity();
-                overview = new SelectedDocumentsOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData,recommendationDocumentData);
+                overview = new RecommendationOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData,recommendationDocumentData);
                 overview.visualizeOverview();
             }
 

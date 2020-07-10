@@ -1,4 +1,4 @@
-function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, recommendationDocumentData){
+function RecommendationOverview(FEATURE_ID, documentComparisonData, recommendationDocumentData){
     this.documentComparisonData = documentComparisonData;
     this.recommendationDocumentData = recommendationDocumentData;
 
