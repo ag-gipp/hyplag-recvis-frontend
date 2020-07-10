@@ -1,5 +1,4 @@
 function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumentData, documentComparisonData) {
-    this.documentNavigationIndex = 0;
     this.sourceDocumentData = sourceDocumentData;
     this.recommendationDocumentData = recommendationDocumentData;
     this.FEATURE_ID = FEATURE_ID;
@@ -31,16 +30,10 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
             targetCaption: "Standard Deviation rendered using TeX syntax"
         },
     ];
-    const SOURCE_FORMULA_CONTAINER = document.getElementById("src-formula");
-    const RECOMMENDATION_FORMULA_CONTAINER = document.getElementById("recommendation-formula");
-    const SOURCE_CAPTION = document.getElementById("src-formula-caption");
-    const RECOMMENDATION_CAPTION = document.getElementById("recommendation-formula-caption");
-    const LEFT_NAV_ARROW = document.getElementById("previous-formula-match");
-    const RIGHT_NAV_ARROW = document.getElementById("next-formula-match");
     const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("formula-range-value");
-    const SOURCE_DOCUMENT_TITLE = document.getElementById("src-document-name");
-    const RECOMMENDATION_DOCUMENT_TITLE =  document.getElementById("target-document-name");
     const FORMULA_SIMILARITY_SLIDER =  document.getElementById("formula-range-control-input");
+    const CONTENT_CONTAINER = document.getElementById("formulas-visualization-content");
+    const NAV_CONTAINER = document.getElementById("formulas-visualization-nav-bubbles");
 
     /*
     this working copy allows the filtering of data based on the current similarity threshold
@@ -49,21 +42,63 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
     let mockDataWorkingCopy = FORMULA_DETECTION_MOCK_DATA;
 
     this.visualizeFormulaSimilarity = () => {
-        SOURCE_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[0].srcFormula;
-        RECOMMENDATION_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[0].targetFormula;
-        SOURCE_CAPTION.innerText = mockDataWorkingCopy[0].srcCaption;
-        RECOMMENDATION_CAPTION.innerText = mockDataWorkingCopy[0].targetCaption;
-        DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
 
-        //this tells mathjax to update the contents within the given elements -> create the formulas
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "src-formula"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "recommendation-formula"]);
+        for(let i = 0 ; i < mockDataWorkingCopy.length; i++){
+            //bubble init
+            let navContainer = document.getElementById("formulas-visualization-nav-bubbles");
+            let anchor = document.createElement("a");
+            anchor.setAttribute("class","nav-bubble");
+            anchor.setAttribute("href",`#overview-slide-${i+1}`)
+            if(i === 0){
+                anchor.setAttribute("class", "active nav-bubble");
+            }
+            anchor.appendChild(document.createTextNode((i+1).toString()));
+            anchor.onclick = () => {
+                [...navContainer.children].filter((anchor) => anchor.classList.contains("active"))[0].classList.remove("active");
+                [...navContainer.children][i].classList.add("active");
+                DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[i].similarityScore;
+            };
+            navContainer.appendChild(anchor);
 
-        SOURCE_DOCUMENT_TITLE.innerText = this.sourceDocumentData.title;
-        RECOMMENDATION_DOCUMENT_TITLE.innerText = this.recommendationDocumentData.title;
+            //markup
+            let contentContainer = document.getElementById("formulas-visualization-content");
+            let content = document.createElement("div");
+            content.setAttribute("class","slide");
+            content.setAttribute("id", `overview-slide-${i+1}`);
+            content.innerHTML = `
+            <div class="formula-content-container">
+                <div id="source-formula-context-${i}" class="formula-context">
+                    <div id="src-document-name-${i}" class="document-title"> Source Document: ${sourceDocumentData.title}</div>
+                    <div class="formula-content mathjax">
+                        <p>Here's some context text, surrounding the formula to give the reader a bit more textual description of the formula - typically the sentences surrounding a formula will be referencing it (not allways, but very often). Vivamus tristique ex dui, vitae mattis nisi hendrerit in.Integer venenatis lacus eget sem tristique, sed sodales ipsum facilisis. Sed condimentum ornare facilisis. Aliquam a mauris nunc.</p>
+                        <div>
+                            <div id="src-formula-${i}">${mockDataWorkingCopy[i].srcFormula}</div>
+                            <div id="src-formula-caption-${i}">${mockDataWorkingCopy[i].srcCaption}</div>
+                        </div>
+                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                    </div>
+                </div>
+                <div id="recommendation-formula-context-${i}" class="formula-context">
+                    <div id="recommendation-document-name-${i}" class="document-title"> Recommended Document: ${recommendationDocumentData.title}</div>
+                    <div class="formula-content mathjax">
+                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                        <div>
+                            <div id="recommendation-formula-${i}">${mockDataWorkingCopy[i].targetFormula}</div>
+                            <div id="recommendation-formula-caption-${i}">${mockDataWorkingCopy[i].targetCaption}</div>
+                        </div>
+                        <p>Ut dapibus augue nulla, eget dictum ipsum ornare quis. Etiam nunc turpis, suscipit vel augue sit amet, varius pellentesque dolor. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
+                    </div>
+                </div>
+            </div>
+            `;
+            contentContainer.appendChild(content);
 
-        LEFT_NAV_ARROW.addEventListener('click', this.leftArrowClicked, false);
-        RIGHT_NAV_ARROW.addEventListener('click', this.rightArrowClicked, false);
+            DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
+
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, `src-formula-${i}`]);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, `recommendation-formula-${i}`]);
+
+        }
 
         FORMULA_SIMILARITY_SLIDER.addEventListener('change', this.handleFilterValueChange, false);
         FORMULA_SIMILARITY_SLIDER.addEventListener('input', this.handleFilterValueChange, false);
@@ -74,44 +109,9 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
         this.sourceDocumentData = srcDocumentData;
         this.recommendationDocumentData = recommendationDocumentData;
 
-        SOURCE_DOCUMENT_TITLE.innerText = this.sourceDocumentData.title;
-        //this is where the recommendation document title is changed on update
-        RECOMMENDATION_DOCUMENT_TITLE.innerText = this.recommendationDocumentData.title;
-    };
-
-    this.leftArrowClicked = (event) => {
-        //at the beginning of mock data?
-        if (this.documentNavigationIndex === 0) {
-            //jump to the end
-            this.documentNavigationIndex = mockDataWorkingCopy.length - 1;
-        } else {
-            --this.documentNavigationIndex;
+        for(let i = 0; i < mockDataWorkingCopy.length; i++){
+            document.getElementById(`recommendation-document-name-${i}`).innerText = "Recommended Document: " + recommendationDocumentData.title;
         }
-        this.handleArrowNavigation();
-    };
-
-    this.rightArrowClicked = (event) => {
-        //at the end of mock data?
-        if (this.documentNavigationIndex === mockDataWorkingCopy.length - 1) {
-            //jump to the beginning
-            this.documentNavigationIndex = 0;
-        } else {
-            ++this.documentNavigationIndex;
-        }
-        this.handleArrowNavigation();
-    };
-
-    //once the document index is updated, this function puts the content into the corresponding containers
-    this.handleArrowNavigation = () => {
-        SOURCE_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[this.documentNavigationIndex].srcFormula;
-        RECOMMENDATION_FORMULA_CONTAINER.innerHTML = mockDataWorkingCopy[this.documentNavigationIndex].targetFormula;
-
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "src-formula"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "recommendation-formula"]);
-
-        SOURCE_CAPTION.innerText = mockDataWorkingCopy[this.documentNavigationIndex].srcCaption;
-        RECOMMENDATION_CAPTION.innerText = mockDataWorkingCopy[this.documentNavigationIndex].targetCaption;
-        DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[this.documentNavigationIndex].similarityScore;
     };
 
     //positions the slider bubble and updates its value
@@ -125,7 +125,8 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
     //called when the slider is being adjusted
     this.handleFilterValueChange = (event) => {
         const MIN_SIMILARITY_SCORE = event.target.value / 100;
-
+        let latestFilterSize = mockDataWorkingCopy.length;
+        let currentFilterSize;
         this.updateSliderBubble(MIN_SIMILARITY_SCORE);
 
         //here the filtering takes place which in turn allows the visualizeFormula function to only display the filtered content
@@ -134,9 +135,19 @@ function FormulaComparison(FEATURE_ID, sourceDocumentData, recommendationDocumen
                 return formulaMatch.similarityScore >= MIN_SIMILARITY_SCORE
             });
 
-        this.documentNavigationIndex = 0;
+        currentFilterSize = mockDataWorkingCopy.length;
 
-        this.visualizeFormulaSimilarity();
+        //update necessary? remove current entries and visualize new entries
+        if(latestFilterSize !== currentFilterSize) {
+            while (CONTENT_CONTAINER.firstChild) {
+                CONTENT_CONTAINER.removeChild(CONTENT_CONTAINER.lastChild);
+            }
+            while (NAV_CONTAINER.firstChild) {
+                NAV_CONTAINER.removeChild(NAV_CONTAINER.lastChild);
+            }
+
+            this.visualizeFormulaSimilarity();
+        }
     };
 
 }

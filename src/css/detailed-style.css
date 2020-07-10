@@ -34,6 +34,11 @@
     color: black;
 }
 
+.dropdown-item.active{
+    color: white !important;
+    color: white !important;
+}
+
 .nav-pills > .nav-item > a {
     color: black;
     outline: none;
@@ -53,6 +58,7 @@
 .tab-content{
     width: 100%;
     height: 100%;
+    min-height: 900px;
     position: relative;
 }
 
@@ -64,16 +70,104 @@
     flex-direction: column;
 }
 
-.figures-visualization{
+.content-slider {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    position: relative;
+    overflow: hidden;
+}
+
+.slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: start;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-bubble{
+    background-color: #03a9f4;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 150%;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 10px 10px 0;
+    opacity: 1;
+    transition: opacity .3s ease-in-out ;
+}
+
+.nav-bubble.active{
+    opacity: 0.5;
+}
+
+#figure-visualization-nav-bubbles, #formulas-visualization-nav-bubbles{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.figures-visualization, .overview-visualization {
     width: 100%;
     display: flex;
     flex-direction: column;
     flex:12;
 }
 
-.figure-visualization-content, .citation-visualization-content{
+.figure-visualization-content{
     display: flex;
-    flex:9;
+    flex:20;
+    justify-content: space-around;
+}
+
+.citation-visualization-content{
+    display: flex;
+    flex:12;
+    position: relative;
+}
+
+#text-help-button{
+    position: absolute;
+    min-width: 50px;
+    min-height: 50px;
+    top: 25px;
+    left: calc(25% - 12px);
+    font-size: 125%;
+}
+
+#text-legend-content{
+    display: none;
+    position: absolute;
+    left: calc(25% - 12px);
+    top: 85px;
+}
+
+.text-legend-container{
+    background: #cccccc;
+    color: black;
+}
+
+.text-legend-container__color-scale{
+    background: linear-gradient(90deg,#ff0000,rgb(0, 0, 255));
+    height: 30px;
+    width: 100%;
+}
+
+.text-legend-container__color-scale-legend{
+    display:flex;
+    justify-content: space-between;
+}
+
+.text-legend{
+    margin-right: 10px;
 }
 
 .figure-visualization-caption{
@@ -82,8 +176,10 @@
 }
 
 .figure{
-    width: 50%;
-    padding: 10px 10px 10px 10px;
+    width: 48%;
+    padding: 1% 1% 1% 1%;
+    border-radius: 25px;
+    background-color: #e8e9ee;
 }
 
 .caption{
@@ -100,6 +196,7 @@
     align-items: center;
     font-weight: bold;
     margin-top: 15px;
+    text-align: center;
 }
 
 .config-component{
@@ -138,31 +235,20 @@
     justify-content: center;
 }
 
-.arrow-navigation{
-    flex-direction: row;
-    position: relative;
-    padding: 15px 25px 15px 25px;
-    justify-content: space-between;
-    align-items: center;
-}
-
-
-.arrow-navigation-item{
-    background-color: #007bff;
-    width:45%;
-    height: 100%;
-    font-size: 1.5em;
-    line-height: 1.5em;
-    color: white;
-    cursor: pointer;
-}
-
 .formulas-visualization{
     width: 100%;
     display: flex;
     justify-content: space-around;
     align-items: center;
     flex:12;
+    flex-direction: column;
+}
+
+.formula-content-container{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
 }
 
 .formula-context{
@@ -195,12 +281,17 @@
     border-radius: 100%;
 }
 
-.formula-legend, .citation-legend, .citation-algorithms{
+.formula-legend, .citation-legend, .citation-algorithms, .overview-legend{
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     width: 100%;
     height: 100%;
+}
+
+#citation-legend, #formula-legend, #overview-legend{
+    background-color: #007bff !important;
+    color: white;
 }
 
 .formula-legend-entry p{
@@ -250,25 +341,33 @@
  }
 
 .citation-legend-entry .legendSrcDocument:before{
-    width: 20px;
+    width: 40px;
     height: 20px;
-    background-color:  #e5e5e5;
+    background-color:  darkgrey;
     content: " ";
     margin:0px 5px 0px 5px;
     border: 1px solid black;
-    border-top-left-radius: 100% 200%;
-    border-top-right-radius: 100% 200%;
+    border-radius: 20px 20px 0px 0px;
 }
 
 .citation-legend-entry .legendTargetDocument:before{
-    width: 20px;
+    width: 40px;
     height: 20px;
     background-color: #ffffff;
     content: " ";
     margin: 0px 5px 0px 5px;
     border: 1px solid black;
-    border-bottom-left-radius: 100% 200%;
-    border-bottom-right-radius: 100% 200%;
+    border-radius: 0px 0px 20px 20px;
+}
+
+.citation-legend-entry .legendExplanation:before{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient( darkgrey, darkgrey 50%, #ffffff 51% );
+    content: " ";
+    margin: 0px 5px 0px 5px;
+    border: 1px solid black;
 }
 
 .label{
@@ -379,68 +478,7 @@ input[type=range]:focus::-moz-range-track {
     color:red;
 }
 
-.text-container-legend{
-    position: absolute;
-    width: 100%;
-    height: 30px;
-    top: 0;
-    background-color: #cccccc;
-    border: 2px solid rgb(102, 102, 102);
-    transition: height ease-in-out 0.4s;
-    display: flex;
-    justify-content: space-between;
-}
 
-.text-container-legend * {
-    height: 30px;
-    transition: height ease-in-out 0.4s;
-    overflow: hidden;
-}
-
-.text-container-legend-toggle{
-    position: absolute;
-    display: inline-block;
-    width: 24px;
-    height: 30px;
-    left: calc(25% - 12px);
-    top: 30px;
-    background-color: #cccccc;
-    border: 2px solid rgb(102, 102, 102);
-    transition: top ease-in-out 0.4s;
-    text-align: center;
-    cursor: pointer;
-}
-
-.keyword-legend-toggle-label{
-    position: absolute;
-    display: inline-block;
-    min-width: 100px;
-    height: 30px;
-    left: calc(25% + 12px);
-    top: 30px;
-    background-color: #cccccc;
-    border: 2px solid rgb(102, 102, 102);
-    border-left: none;
-    transition: top ease-in-out 0.4s;
-    text-align: center;
-}
-
-.text-container-legend.hidden{
-    height: 0px;
-    border: none;
-}
-
-.text-container-legend.hidden * {
-    height: 0px;
-}
-
-.text-container-legend-toggle.hidden{
-    top: 0px;
-}
-
-.keyword-legend-toggle-label.hidden{
-    top: 0px;
-}
 
 .source-keywords-footer, .recommendation-keywords-footer, .shared-keywords-footer{
     width: 30.76%;
@@ -497,6 +535,40 @@ input[type=range]:focus::-moz-range-track {
 
 .overview-content{
     justify-content: center;
+}
+
+.overview-legend-entry p{
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.overview-legend-entry .overview-root:before{
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background-color:  rgb(91, 193, 198);
+    content: " ";
+    margin:0px 5px 0px 5px;
+}
+
+.overview-legend-entry .overview-inner:before{
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background-color:  rgb(71, 166, 190);
+    content: " ";
+    margin:0px 5px 0px 5px;
+}
+
+.overview-legend-entry .overview-leaf:before{
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    background-color:  white;
+    content: " ";
+    margin:0px 5px 0px 5px;
 }
 
 

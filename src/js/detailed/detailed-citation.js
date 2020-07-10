@@ -87,12 +87,14 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                     .call(zoom)
                     .on("wheel.zoom", null);
 
+                //the y coordinate of the group for the upper semicircles is vertically shifted upwards to create the gap between the semicircles seen in the visualization
                 const upperSemiCircleGroup = g
                     .append("g")
                         .attr('transform', `translate(0,${-CIRCLE_PADDING + 5})`);
                 const lowerSemiCircleGroup = g.
                     append("g");
 
+                //function that enables zooming/resetting on semicircle click
                 let handleSemiCircleClick = (semiCircleId, x, y) => {
                     let semiCircle = d3.select("#" + semiCircleId);
                     if(!zoomedIn){
@@ -221,15 +223,6 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
                                 d3.select("#lowerCircle_" + index).attr("stroke", "black");
                             });
 
-                    /*
-                    let lowerSpan = lowerText[Object.keys(lowerText)[0]][0][0].children[0];
-                    let upperSpan = upperText[Object.keys(upperText)[0]][0][0].children[0];
-
-                    let lowerY = lowerSpan.getBoundingClientRect().top;
-                    let lowerX = lowerSpan.getBoundingClientRect().left;
-                    let upperY = upperSpan.getBoundingClientRect().top;
-                    let upperX = upperSpan.getBoundingClientRect().left;
-                    */
                 });
 
             }
@@ -359,13 +352,13 @@ function CitationComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, 
         let srcSentence = SOURCE_DOCUMENT_STRING_REPRESENTATION.substring(srcSentenceStartIndex, srcSentenceEndIndex + 1);
         let targetSentence = RECOMMENDATION_DOCUMENT_STRING_REPRESENTATION.substring(recommendationSentenceStartIndex, recommendationSentenceEndIndex + 1);
 
-        //here we get the index of the citation match within our sentence
+        //here we get the iodizes of the citation match within our sentence
         const SRC_SENTENCE_CITATION_START = srcSentence.indexOf(sourceMatch);
         const SRC_SENTENCE_CITATION_END = srcSentence.indexOf(sourceMatch) + sourceMatch.length;
         const RECOMMENDATION_SENTENCE_CITATION_START = targetSentence.indexOf(recommendationMatch);
         const RECOMMENDATION_SENTENCE_CITATION_END = targetSentence.indexOf(recommendationMatch) + recommendationMatch.length;
 
-        //this function creates a span around or citation match which is then used ofr highlighting
+        //this function creates a span around or citation match which is then used for highlighting
         let replaceStringAtIndex = (startIndex, endIndex, myString) => {
             //replace gets rid of all unwanted html and xml tags within our filtered data
             let preCitationContent = myString.substring(0, startIndex).replace(/(<([^>]+)>)/ig, '');

@@ -1,20 +1,30 @@
-function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collectedDocuments){
+function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, recommendationDocumentData){
+    this.documentComparisonData = documentComparisonData;
+    this.recommendationDocumentData = recommendationDocumentData;
+
+    this.update = (documentComparisonData, recommendationDocumentData) => {
+        this.documentComparisonData = documentComparisonData;
+        this.recommendationDocumentData = recommendationDocumentData;
+
+        d3.select("#overview-svg").remove();
+
+        this.visualizeOverview();
+    };
 
     this.visualizeOverview = () => {
         const SVG_HEIGHT = 960;
         const SVG_WIDTH = 960;
-        const CIRCLE_PADDING = 3;
+        const CIRCLE_PADDING = 20;
         const MARGIN = 20;
         const DIAMETER = SVG_HEIGHT;
 
-
-
-        let svg = d3.select('#overview-svg'),
+        let svg = d3.select("#overview-svg-container")
+                .append('svg')
+                    .attr("width", SVG_WIDTH)
+                    .attr("height",SVG_HEIGHT)
+                    .attr("id","overview-svg"),
             g = svg.append("g")
                 .attr("transform", "translate(" + DIAMETER / 2  + "," + DIAMETER / 2 + ")");
-
-        //do not cut off document titles that slightly get out of bounds
-        svg.style("overflow","visible");
 
         let color = d3.scaleLinear()
             .domain([-1, 5])
@@ -81,12 +91,7 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
 
         //instantiate the root element
         overviewData.name = "root";
-        overviewData.children = [];
-
-        // create randomized data for each collected document
-        collectedDocuments.forEach((document, index) => {
-            overviewData.children.push({name: document.title, children: getDocumentOverviewData(25), "size": index + 1});
-        });
+        overviewData.children = [{name: this.recommendationDocumentData.title, children: getDocumentOverviewData(25), "size": 1}];
 
         let root = d3.hierarchy(overviewData)
             .sum(function (d) {
@@ -125,6 +130,7 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
             .on("mouseover", function (d,i) {
                 if(d.depth === 1 || d.depth === 2){
                     d3.select("#text_"+i)["_groups"][0][0].style["fill-opacity"] = 1;
+                    console.log(d3.select("#text_"+i)["_groups"][0][0]);
                 }
             })
             .on("mouseout",function (d,i) {
@@ -143,6 +149,7 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
                 })
                 //hide all text initially
                 .style("fill-opacity", 0)
+                .style("display","inline")
                 .text(function (d) {
                     return d.data.name;
                 });
@@ -173,18 +180,9 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
                 });
 
             transition.selectAll("text")
-                .filter(function (d) {
-                    return d.parent === focus || this.style.display === "inline";
-                })
                 .style("fill-opacity", function (d) {
-                    //only display text at depth 3 within the bubbles
+                    //only display text at depth 3 within the bubbles without hover
                     return d.parent === focus && d.depth === 3 ? 1 : 0;
-                })
-                .on("start", function (d) {
-                    if (d.parent === focus) this.style.display = "inline";
-                })
-                .on("end", function (d) {
-                    if (d.parent !== focus) this.style.display = "none";
                 });
         }
 
@@ -195,7 +193,7 @@ function SelectedDocumentsOverview(FEATURE_ID, documentComparisonData, collected
             node.attr("transform", function (d,i) {
                 if(i >= nodes.length/2){
                     if(d.depth === 1 || d.depth === 2){
-                        //set the text on top of the bubbles
+                        //set the text on top of the bubbles for the document and features
                         return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1] - d.r - offsetTop) * k + ")";
                     }
                 }

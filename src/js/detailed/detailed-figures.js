@@ -22,43 +22,16 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
             similarityScore: 0.7
         },
     ];
-    const FIGURES_CONTENT_CONTAINER = document.getElementById("figures-content-container");
-    const SOURCE_FIGURE_CONTAINER = document.getElementById("source-doc-figure");
-    const RECOMMENDATION_FIGURE_CONTAINER = document.getElementById("recommendation-doc-figure");
-    const SOURCE_FIGURE_CAPTION = document.getElementById("src-caption");
-    const RECOMMENDATION_FIGURE_CAPTION = document.getElementById("recommendation-caption");
-    const FIGURES_LIST = document.getElementById("src-figures-list");
     const FIGURE_SIMILARITY_SLIDER = document.getElementById("figure-similarity-input");
     const DISPLAYED_MATCH_SIMILARITY_SCORE = document.getElementById("range-value");
     const HEATMAP_CHECKBOX = document.getElementById("heatmap-overlay-checkbox");
+    const NAV_CONTAINER = document.getElementById("figure-visualization-nav-bubbles");
+    const CONTENT_CONTAINER = document.getElementById("figure-visualization-content");
 
     let mockDataWorkingCopy = FIGURE_DETECTION_MOCK_DATA;
-
-    this.appendFigureMatchesToDropdown = () => {
-        for (let k = 0; k < mockDataWorkingCopy.length; k++) {
-            let anchor = document.createElement('a');
-            anchor.classList.add("dropdown-item");
-            anchor.appendChild(document.createTextNode("Figure_match_"+k));
-            anchor.onclick = (event) => {
-                let index = event.target.innerText.slice(-1);
-                SOURCE_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[index].srcFigureURI}`;
-                RECOMMENDATION_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[index].targetFigureURI}`;
-                SOURCE_FIGURE_CAPTION.innerText = mockDataWorkingCopy[index].srcFigureName;
-                RECOMMENDATION_FIGURE_CAPTION.innerText = mockDataWorkingCopy[index].targetFigureName;
-
-                //generate new heatmap for each match if checkbox is checked
-                d3.select("#figures_svg").remove();
-                if(HEATMAP_CHECKBOX.checked){
-                    this.drawSvgHeatmap();
-                }
-            };
-            FIGURES_LIST.appendChild(anchor);
-        }
-    };
+    let offsetLeft = 0;
 
     this.initializeFigureNavigation = () => {
-        //populate dropdown menu
-        this.appendFigureMatchesToDropdown();
 
         //initialize slider functionality
         FIGURE_SIMILARITY_SLIDER.addEventListener('change', (event) => this.handleSliderValueChange(event), false);
@@ -70,14 +43,59 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
 
     this.initializeFigureNavigation();
 
+
     this.visualizeImageSimilarity = () => {
 
-        //display figure match at positon 0 of the working copy
-        SOURCE_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[0].srcFigureURI}`;
-        RECOMMENDATION_FIGURE_CONTAINER.src = `data:image/x-icon;base64,${mockDataWorkingCopy[0].targetFigureURI}`;
-        SOURCE_FIGURE_CAPTION.innerText = mockDataWorkingCopy[0].srcFigureName;
-        RECOMMENDATION_FIGURE_CAPTION.innerText = mockDataWorkingCopy[0].targetFigureName;
+        for(let i = 0 ; i < mockDataWorkingCopy.length; i++){
+            //first, initialize bubbles
+            let anchor = document.createElement("a");
+            anchor.setAttribute("class","nav-bubble");
+            anchor.setAttribute("href",`#slide-${i+1}`);
+            if(i === 0){
+                anchor.setAttribute("class","active nav-bubble");
+            }
+            anchor.appendChild(document.createTextNode((i+1).toString()));
+            anchor.onclick = (event) => {
+                [...NAV_CONTAINER.children].filter((anchor) => anchor.classList.contains("active"))[0].classList.remove("active");
+                [...NAV_CONTAINER.children][i].classList.add("active");
+                DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[i].similarityScore;
+                //the content is placed in a horizontally scrollable container; each content element takes 100% of the width
+                //to properly position the heatmap cover the css left property needs to be adjusted
+                offsetLeft = i * 100;
+                if(HEATMAP_CHECKBOX.checked){
+                    d3.select("#figures_svg").remove();
+                    this.drawSvgHeatmap();
+                }
+            };
+            NAV_CONTAINER.appendChild(anchor);
 
+            //markup
+            let content = document.createElement("div");
+            content.setAttribute("class", "slide");
+            content.setAttribute("id",`slide-${i+1}`);
+            content.innerHTML = `
+                <div class="document-title">
+                    <p id="src-title-${i}" class="caption">Source Document: ${sourceDocumentData.title} </p>
+                    <p id="recommendation-title-${i}" class="caption">Recommended Document: ${recommendationDocumentData.title}</p>
+                </div>
+                <div id="figures-content-container-${i}" class="figure-visualization-content">
+                    <img class="figure" id="source-doc-figure-${i}">
+                    <img class="figure" id="recommendation-doc-figure-${i}">
+                </div>
+                <div class="figure-visualization-caption">
+                    <p id="src-caption-${i}" class="caption"> </p>
+                    <p id="recommendation-caption-${i}" class="caption"> </p>
+                </div>
+             </div>  
+            `;
+            CONTENT_CONTAINER.appendChild(content);
+
+            //data
+            document.getElementById(`source-doc-figure-${i}`).src = `data:image/x-icon;base64,${mockDataWorkingCopy[i].srcFigureURI}`;
+            document.getElementById(`recommendation-doc-figure-${i}`).src = `data:image/x-icon;base64,${mockDataWorkingCopy[i].targetFigureURI}`;
+            document.getElementById(`src-caption-${i}`).innerText = `${mockDataWorkingCopy[i].srcFigureName}`;
+            document.getElementById(`recommendation-caption-${i}`).innerText = `${mockDataWorkingCopy[i].targetFigureName}`;
+        }
         DISPLAYED_MATCH_SIMILARITY_SCORE.innerText = mockDataWorkingCopy[0].similarityScore;
     };
 
@@ -87,24 +105,29 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
         if(HEATMAP_CHECKBOX.checked){
             this.drawSvgHeatmap();
         }
+
+        for(let i = 0; i < mockDataWorkingCopy.length; i++){
+            document.getElementById("recommendation-title-"+i).innerText = "Recommended Document: " + recommendationDocumentData.title;
+        }
     };
 
     //puts an absolutely positioned svg on top of the figure comparison and draws similarity circles
     this.drawSvgHeatmap = () => {
-        const SVG_WIDTH = FIGURES_CONTENT_CONTAINER.clientWidth;
-        const SVG_HEIGHT = FIGURES_CONTENT_CONTAINER.clientHeight;
+        const SVG_WIDTH = document.getElementById("figures-content-container-0").clientWidth;
+        const SVG_HEIGHT = document.getElementById("figures-content-container-0").clientHeight;
         const SVG_OPACITY = 0.4;
         const SOURCE_CIRCLE_RADIUS = 50;
         const RECOMMENDATION_CIRCLE_RADIUS = 70;
         const RADIAL_GRADIENT_CENTER = "#FF0000";
         const RADIAL_GRADIENT_OUTSIDE = "#FFB0B0";
 
-        let svg = d3.select("#figures-content-container")
+        let svg = d3.select("#figure-visualization-content")
             .append("svg")
                 .attr("id","figures_svg")
                 .attr("width","100%")
                 .attr("height", "100%")
                 .style("position", "absolute")
+                .style("left", offsetLeft + "%")
                 .style("opacity", SVG_OPACITY);
 
         let radialGradient = svg.append("defs")
@@ -145,23 +168,35 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
 
     this.handleSliderValueChange = (event) => {
         const MIN_SIMILARITY_SCORE = event.target.value / 100;
-
+        let latestFilterSize = mockDataWorkingCopy.length;
+        let currentFilterSize;
         this.updateSliderBubble(MIN_SIMILARITY_SCORE);
 
         mockDataWorkingCopy =  FIGURE_DETECTION_MOCK_DATA.filter((figuresMatch) => {
             return figuresMatch.similarityScore >= MIN_SIMILARITY_SCORE;
         });
+        currentFilterSize = mockDataWorkingCopy.length
 
-        //remove old dropdown entries
-        while(FIGURES_LIST.firstChild){
-            FIGURES_LIST.removeChild(FIGURES_LIST.lastChild);
+        if(latestFilterSize != currentFilterSize){
+            //remove old entries
+            let contentContainer = document.getElementById("figure-visualization-content");
+            let navContainer = document.getElementById("figure-visualization-nav-bubbles");
+            while(contentContainer.firstChild){
+                contentContainer.removeChild(contentContainer.lastChild);
+            }
+            while(navContainer.firstChild){
+                navContainer.removeChild(navContainer.lastChild);
+            }
+
+            //display entry 0 of matchDataWorkingCopy on the page
+            this.visualizeImageSimilarity();
+            //was removed earlier due to the first loop
+            if(HEATMAP_CHECKBOX.checked){
+                offsetLeft = 0;
+                this.drawSvgHeatmap();
+            }
         }
 
-        //append new (filtered) entries
-        this.appendFigureMatchesToDropdown();
-
-        //display entry 0 of matchDataWorkingCopy on the page
-        this.visualizeImageSimilarity();
     };
 
     this.updateSliderBubble = (value) => {
@@ -188,6 +223,7 @@ function FigureComparison(FEATURE_ID, sourceDocumentData, recommendationDocument
             }
             else{
                 heatmapSvg.style.visibility = "visible";
+                heatmapSvg.style.left = offsetLeft + "%";
             }
         }
     }

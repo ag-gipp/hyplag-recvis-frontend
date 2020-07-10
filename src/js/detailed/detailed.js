@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let recommendationDocumentData = null;
     let documentComparisonData = null;
     //used to wait for asynchronous requests being complete
-    let callbackCounter = 3;
+    let callbackCounter = 4;
 
     const FEATURE_NAME_CONTAINER_ID_MAPPING = {
         "Citations": "Citation-Container",
@@ -57,7 +57,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             //retrieve the list of collected documents
             backendApi.getCollectedDocsList(authToken, function (err, result) {
                 if (!err) {
-                    initializeNavigation(result);
+                    collectedDocuments = result.collectedDocs;
+                    callbackResolved();
                 } else {
                     utilityLib.informUser("alert-danger", err);
                 }
@@ -68,10 +69,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
             //this function adds EventListeners to the navigation items, as well as choosing which feature to display by default
-            function initializeNavigation(documents) {
-                collectedDocuments = documents.collectedDocs;
+            function initializeNavigation() {
                 const NAVIGATION_TAB_ANCHORS = document.getElementsByClassName("nav-link");
                 const FEATURE_CONTAINERS = document.getElementsByClassName("tab-content");
+                const DOCUMENT_SELECTION_DROPDOWN = document.getElementById("detailed-view-document-selection-menu");
 
                 for (let i = 0; i < NAVIGATION_TAB_ANCHORS.length; i++) {
                     NAVIGATION_TAB_ANCHORS[i].addEventListener('click', (event) => toggleDisplayedFeature(event.target.innerText));
@@ -82,23 +83,29 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     FEATURE_CONTAINERS[i].style.display = "none";
                 }
 
-                const DROP_DOWN_MENU = document.getElementById("detailed-view-document-selection-menu");
-                documents.collectedDocs.forEach((selectedDocument,index) => {
+                collectedDocuments.forEach((selectedDocument,index) => {
                         let anchor = document.createElement('a');
                         anchor.classList.add('dropdown-item');
+                        if(selectedDocument.documentId === recommendationDocumentData.documentId){
+                            anchor.classList.add('active');
+                        }
                         anchor.setAttribute('id', `dropdown_element_${index}`);
                         anchor.appendChild(document.createTextNode(selectedDocument.title));
                         anchor.onclick = (event) => {
-                            //new asynchronous requests to the backend are being made, thus the callbackCounter needs to be reset
+                            //new asynchronous requests to the backend are being made, thus the callbackCounter needs to be "reset"
+                            //3 instead of 4, because the collected documents are not being requested anew
                             callbackCounter = 3;
-                            let selectedDocument = documents.collectedDocs[+event.target.id.slice(-1)];
+                            let selectedDocument = collectedDocuments[+event.target.id.slice(-1)];
+                            [...DOCUMENT_SELECTION_DROPDOWN.children].filter((anchor) => anchor.classList.contains("active"))[0].classList.remove("active");
+                            [...DOCUMENT_SELECTION_DROPDOWN.children][index].classList.add("active");
                             getComparisonData(backendApi, authToken, sourcedoc, selectedDocument.documentId);
                         };
-                        DROP_DOWN_MENU.appendChild(anchor);
+                        DOCUMENT_SELECTION_DROPDOWN.appendChild(anchor);
                     }
                 );
             }
 
+            //function that handles the navigation between different views
             function toggleDisplayedFeature(featureName) {
                 const FEATURE_CONTAINERS = document.getElementsByClassName("tab-content");
 
@@ -162,12 +169,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
     //this function either instantiates or updates the feature views once all necessary data has been retrieved
     function callbackResolved() {
         if (--callbackCounter === 0) {
-            if (citationComparison && formulaComparison && textComparison && figureComparison) {
+            if (citationComparison && formulaComparison && textComparison && figureComparison && overview) {
                 citationComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 formulaComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 textComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 figureComparison.update(sourceDocumentData, recommendationDocumentData, documentComparisonData);
+                overview.update(documentComparisonData, recommendationDocumentData);
             } else {
+                initializeNavigation();
+
                 citationComparison = new CitationComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Citations"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 citationComparison.visualizeCitationSimilarity();
                 formulaComparison = new FormulaComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Mathematical expressions"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
@@ -176,7 +186,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 textComparison.visualizeTextSimilarity();
                 figureComparison = new FigureComparison(FEATURE_NAME_CONTAINER_ID_MAPPING["Figures"], sourceDocumentData, recommendationDocumentData, documentComparisonData);
                 figureComparison.visualizeImageSimilarity();
-                overview = new SelectedDocumentsOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData, collectedDocuments);
+                overview = new SelectedDocumentsOverview(FEATURE_NAME_CONTAINER_ID_MAPPING["Overview"], documentComparisonData,recommendationDocumentData);
                 overview.visualizeOverview();
             }
 

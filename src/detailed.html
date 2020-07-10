@@ -116,22 +116,7 @@
     <div id="detailed-view-base-vis">
         <!-- Container for Citation Visualization -->
         <div id="Citation-Container" class="tab-content flex-container">
-            <div class="panel-left flex-column">
-                <div class="config-component">
-                    <div class="config-component-header">
-                        <p>Legend</p>
-                    </div>
-                    <div class="config-component-body">
-                        <div class="citation-legend">
-                            <div class="citation-legend-entry ">
-                                <p class="legendSrcDocument"> Selected Document Match</p>
-                            </div>
-                            <div class="citation-legend-entry">
-                                <p class="legendTargetDocument"> Recommended Document Match</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="panel-left flex-column" style="flex:3">
                 <div class="config-component">
                     <div class="config-component-header">
                         <p>SELECTED ALGORITHMS</p>
@@ -165,6 +150,24 @@
                         </div>
                     </div>
                 </div>
+                <div id="citation-legend" class="config-component">
+                    <div class="config-component-header citation-legend-heading">
+                        <p>LEGEND</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="citation-legend">
+                            <div class="citation-legend-entry ">
+                                <p class="legendExplanation"> Citation Match</p>
+                            </div>
+                            <div class="citation-legend-entry ">
+                                <p class="legendSrcDocument"> Selected Document Citation Context</p>
+                            </div>
+                            <div class="citation-legend-entry">
+                                <p class="legendTargetDocument"> Recommended Document Citation Context</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="citation-visualization-content" id="Citation-Content-Container">
             </div>
@@ -187,28 +190,15 @@
                 </div>
                 <div class="config-component">
                     <div class="config-component-header">
-                        <p>CURRENT SIMILARITY SCORE</p>
+                        <p>FORMULA-MATCH SIMILARITY SCORE</p>
                     </div>
                     <div class="config-component-body">
                         <p id="formula-range-value">0.5</p>
                     </div>
                 </div>
-                <div class="config-component">
+                <div id="formula-legend" class="config-component">
                     <div class="config-component-header">
-                        <p>NEXT FORMULA MATCH</p>
-                    </div>
-                    <div class="config-component-body arrow-navigation">
-                        <div class="arrow-navigation-item" id="previous-formula-match">
-                            <span id="arrow-navigation-left"> < </span>
-                        </div>
-                        <div class="arrow-navigation-item" id="next-formula-match">
-                            <span id="arrow-navigation-right"> > </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="config-component">
-                    <div class="config-component-header">
-                        <p>Legend</p>
+                        <p>LEGEND</p>
                     </div>
                     <div class="config-component-body">
                        <div class="formula-legend">
@@ -223,40 +213,25 @@
                 </div>
             </div>
             <div class="formulas-visualization">
-                <div id="source-formula-context" class="formula-context">
-                    <div id="src-document-name" class="document-title"></div>
-                    <div class="formula-content mathjax">
-                        <p>Here's some context text, surrounding the formula to give the reader a bit more textual description of the formula - typically the sentences surrounding a formula will be referencing it (not allways, but very often). Vivamus tristique ex dui, vitae mattis nisi hendrerit in.Integer venenatis lacus eget sem tristique, sed sodales ipsum facilisis. Sed condimentum ornare facilisis. Aliquam a mauris nunc.</p>
-                        <div>
-                            <div id="src-formula"></div>
-                            <div id="src-formula-caption"></div>
-                        </div>
-                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
-                    </div>
-                </div>
-                <div id="target-formula-context" class="formula-context">
-                    <div id="target-document-name" class="document-title"></div>
-                    <div class="formula-content mathjax">
-                        <p>Duis tellus massa, egestas non accumsan a, sagittis eget nisi. Vestibulum quis gravida nunc. Aliquam erat volutpat. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
-                        <div>
-                            <div id="recommendation-formula"></div>
-                            <div id="recommendation-formula-caption"></div>
-                        </div>
-                        <p>Ut dapibus augue nulla, eget dictum ipsum ornare quis. Etiam nunc turpis, suscipit vel augue sit amet, varius pellentesque dolor. Some additonal 3 sentences after the formula so that the formula is not shown entirely out of the document context.  </p>
-                    </div>
-                </div>
+                <div id="formulas-visualization-nav-bubbles" ></div>
+                <div id="formulas-visualization-content" class="content-slider">
+            </div>
             </div>
         </div>
         <!-- Container for Text Visualization -->
         <div id="Text-Container" class="tab-content flex-column">
-            <div>
-                <div id="keyword-legend" class="text-container-legend hidden">
-                    <p style="color:rgb(calc(10 *25.5), 0, calc(0 * 25.5))">Shared keywords</p>
-                    <p style="color:rgb(calc(0 *25.5), 0, calc(10 * 25.5))">Unique keywords</p>
-                    <p style="font-size: 12px;line-height: 25px">Font size corresponds to the occurrence frequency of the keyword </p>
-                </div>
-                <div id="keyword-legend-toggle" class="text-container-legend-toggle hidden"></div>
-                <p id="keyword-legend-toggle-label" class="keyword-legend-toggle-label hidden"> Legend</p>
+            <button  id="text-help-button" type="button" class="btn btn-primary"> ? </button>
+            <div class="text-legend-container" id="text-legend-content">
+                    <div class="text-legend-container__color-scale"></div>
+                    <div class="text-legend-container__color-scale-legend">
+                        <span style="color: #ff0000">Shared Words</span><span style="color:rgb(0, 0, 255)">Unique Words</span>
+                    </div>
+                    <ul class="text-legend">
+                        <li><b>Shared words</b>: Words which appear in both documents</li>
+                        <li><b>Unique words</b>: Words which appear in one document but not the other</li>
+                        <li><b>Keywords</b>: Words which appear most frequent</li>
+                        <li>Font size corresponds to occurrence frequency</li>
+                    </ul>
             </div>
             <div id="text-columns-container" class="distribution">
                 <div class="column column--src-1"></div>
@@ -284,7 +259,7 @@
             <div class="panel-left flex-column">
                 <div class="config-component">
                     <div class="config-component-header">
-                        <p>MINIMUM FIGURE SIMILARITY</p>
+                        <p>FIGURE SIMILARITY THRESHOLD</p>
                     </div>
                     <div class="config-component-body">
                         <div class="range-control range-wrap">
@@ -305,21 +280,6 @@
                 </div>
                 <div class="config-component">
                     <div class="config-component-header">
-                        <p>SELECT FIGURE MATCH</p>
-                    </div>
-                    <div class="config-component-body">
-                        <div class="dropdown figure-collection">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="figures-view-document-selection"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Figure Matches
-                            </button>
-                            <div class="dropdown-menu" id="src-figures-list" aria-labelledby="figures-view-document-selection">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="config-component">
-                    <div class="config-component-header">
                         <p>SIMILARITY REGION HEATMAP</p>
                     </div>
                     <div class="config-component-body">
@@ -328,19 +288,37 @@
                 </div>
         </div>
             <div class="figures-visualization">
-                <div id="figures-content-container" class="figure-visualization-content">
-                    <img class="figure" id="source-doc-figure">
-                    <img class="figure" id="recommendation-doc-figure">
-                </div>
-                <div class="figure-visualization-caption">
-                    <p id="src-caption" class="caption"> Caption 1</p>
-                    <p id="recommendation-caption" class="caption"> Caption 2</p>
+                <div id="figure-visualization-nav-bubbles" ></div>
+
+                <div id="figure-visualization-content" class="content-slider">
                 </div>
             </div>
         </div>
         <!-- Container for the overview -->
         <div id="Overview-Container" class="tab-content overview-content">
-            <svg id="overview-svg" width="960" height="960"></svg>
+            <div class="panel-left flex-column">
+                <div id="overview-legend" class="config-component">
+                    <div class="config-component-header">
+                        <p>LEGEND</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="overview-legend">
+                            <div class="overview-legend-entry">
+                                <p class="overview-root"> Recommended Document</p>
+                            </div>
+                            <div class="overview-legend-entry">
+                                <p class="overview-inner"> Comparison Features</p>
+                            </div>
+                            <div class="overview-legend-entry">
+                                <p class="overview-leaf"> Feature Algorithms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="overview-svg-container" class="overview-visualization">
+
+            </div>
         </div>
     </div>
 </div>

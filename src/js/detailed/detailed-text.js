@@ -4,11 +4,9 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     this.targetDocumentData = targetDocumentData;
 
     const STOP_WORDS = ["a", "able", "about", "across", "after", "all", "almost", "also", "am", "among", "an", "and", "any", "are", "as", "at", "be", "because", "been", "but", "by", "can", "cannot", "could", "dear", "did", "do", "does", "either", "else", "ever", "every", "for", "from", "get", "got", "had", "has", "have", "he", "her", "hers", "him", "his", "how", "however", "i", "if", "in", "into", "is", "it", "its", "just", "least", "let", "like", "likely", "may", "me", "might", "most", "must", "my", "neither", "no", "nor", "not", "of", "off", "often", "on", "only", "or", "other", "our", "own", "rather", "said", "say", "says", "she", "should", "since", "so", "some", "than", "that", "the", "their", "them", "then", "there", "these", "they", "this", "tis", "to", "too", "twas", "us", "wants", "was", "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "would", "yet", "you", "your", "ain't", "aren't", "can't", "could've", "couldn't", "didn't", "doesn't", "don't", "hasn't", "he'd", "he'll", "he's", "how'd", "how'll", "how's", "i'd", "i'll", "i'm", "i've", "isn't", "it's", "might've", "mightn't", "must've", "mustn't", "shan't", "she'd", "she'll", "she's", "should've", "shouldn't", "that'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "wasn't", "we'd", "we'll", "we're", "weren't", "what'd", "what's", "when'd", "when'll", "when's", "where'd", "where'll", "where's", "who'd", "who'll", "who's", "why'd", "why'll", "why's", "won't", "would've", "wouldn't", "you'd", "you'll", "you're", "you've", "subscript","superscript"];
-    const KEYWORDS_LEGEND = document.getElementById("keyword-legend");
-    const KEYWORDS_LEGEND_TOGGLE = document.getElementById("keyword-legend-toggle");
-    const KEYWORDS_LEGEND_TOGGLE_LABEL = document.getElementById("keyword-legend-toggle-label");
     const COLUMN_PREFIXES = ["column--src-", "column--target-", "column--identical-"];
-    const TRANSITION_DURATION_IN_MS = 400;
+    const TEXT_HELP_BUTTON = document.getElementById("text-help-button");
+    const TEXT_LEGEND_CONTENT = document.getElementById("text-legend-content");
     const DEFAULT_FONT_SIZE_IN_PX = 16;
     const HIGHEST_FONT_SCALING_FACTOR = 1.25;
     const MARGIN = 1.75;
@@ -17,27 +15,8 @@ function TextComparison(FEATURE_ID, sourceDocumentData, targetDocumentData, docu
     The calculation needs to be based on the center column which has the biggest font-size (125%)
      */
     const MOST_WORDS_PER_COLUMN = Math.floor(document.getElementById("detailed-view-wrapper").clientHeight / (MARGIN*HIGHEST_FONT_SCALING_FACTOR*DEFAULT_FONT_SIZE_IN_PX ));
-
-    //adds EventListener to the legend - the transitions are handled by the css styling
-    this.initializeLegendToggle = () => {
-        KEYWORDS_LEGEND_TOGGLE.innerText = "▼";
-
-        KEYWORDS_LEGEND_TOGGLE.addEventListener("click", () => {
-            if(KEYWORDS_LEGEND.classList.contains('hidden')){
-                KEYWORDS_LEGEND.classList.remove('hidden');
-                KEYWORDS_LEGEND_TOGGLE.classList.remove('hidden');
-                KEYWORDS_LEGEND_TOGGLE_LABEL.classList.remove('hidden');
-                setTimeout(() => { KEYWORDS_LEGEND_TOGGLE.innerText = "▲"}, TRANSITION_DURATION_IN_MS);
-            }else{
-                KEYWORDS_LEGEND.classList.add('hidden');
-                KEYWORDS_LEGEND_TOGGLE.classList.add('hidden');
-                KEYWORDS_LEGEND_TOGGLE_LABEL.classList.add('hidden');
-                setTimeout(() => { KEYWORDS_LEGEND_TOGGLE.innerText = "▼"}, TRANSITION_DURATION_IN_MS);
-            }
-        }, false);
-    };
-
-    this.initializeLegendToggle();
+    TEXT_HELP_BUTTON.addEventListener("mouseover", () => {TEXT_LEGEND_CONTENT.style.display = "block"}, false);
+    TEXT_HELP_BUTTON.addEventListener("mouseout", () => {TEXT_LEGEND_CONTENT.style.display = "none"}, false);
 
     this.visualizeTextSimilarity = () => {
         //retrieve keyword arrays
