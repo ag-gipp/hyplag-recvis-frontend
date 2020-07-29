@@ -1,0 +1,79 @@
+.distribution{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.column--src-1{
+    color: rgb(calc(0 *25.5), 0, calc(10 * 25.5));
+    font-size: 125%;
+}
+
+.column--src-2{
+    color: rgb(calc(1 *25.5), 0, calc(9 * 25.5));
+    font-size: 110%;
+}
+
+.column--src-3{
+    color: rgb(calc(3 *25.5), 0, calc(7 * 25.5));
+    font-size: 95%;
+}
+
+.column--src-4{
+    color: rgb(calc(5 *25.5), 0, calc(5 * 25.5));
+    font-size: 80%;
+}
+
+.column--identical-5{
+    color: rgb(calc(7 *25.5), 0, calc(3 * 25.5));
+    font-size: 95%
+}
+
+.column--identical-4{
+    color: rgb(calc(9 *25.5), 0, calc(1 * 25.5));
+    font-size: 110%;
+}
+
+.column--identical-3{
+    color: rgb(calc(10 *25.5), 0, calc(0 * 25.5));
+    font-size: 125%;
+}
+
+.column--identical-2{
+    color: rgb(calc(9 *25.5), 0, calc(1 * 25.5));
+    font-size: 110%;
+}
+
+.column--identical-1{
+    color: rgb(calc(7 *25.5), 0, calc(3 * 25.5));
+    font-size: 95%
+}
+
+.column--target-4{
+    color: rgb(calc(5 *25.5), 0, calc(5 * 25.5));
+    font-size: 80%;
+}
+
+.column--target-3{
+    color: rgb(calc(3 *25.5), 0, calc(7 * 25.5));
+    font-size: 95%;
+}
+
+.column--target-2{
+    color: rgb(calc(1 *25.5), 0, calc(9 * 25.5));
+    font-size: 110%;
+}
+
+.column--target-1{
+    color: rgb(calc(0 *25.5), 0, calc(10 * 25.5));
+    font-size: 125%;
+}

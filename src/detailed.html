@@ -7,60 +7,321 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <title id="project-title"></title>
 
     <!-- Shared Styling -->
     <link rel="stylesheet" type="text/css" href="./css/shared-style.css">
-    
+
     <!-- Detailed View Necessary Imports -->
     <link rel="stylesheet" type="text/css" href="./css/detailed-style.css">
+    <link rel="stylesheet" type="text/css" href="./css/detailed-text-style.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script type="text/x-mathjax-config">
+     MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+          loader: {load: ['[tex]/enclose']},
+          processClass: "mathjax",
+          ignoreClass: "no-mathjax",
+           MathML: {
+            extensions: ["content-mathml.js"]
+  }
+    });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML">
+    </script>
+
     <script src="./js/overview-lib/external/d3.v5.js"></script>
     <script src="./js/config.js"></script>
 
     <script src="./js/shared/UtilitiesLibrary.js"></script>
     <script src="./js/shared/RecvizLocalStorage.js"></script>
     <script src="./js/shared/BackendApi.js"></script>
-    <script src="./js/detailed.js"></script>
+    <script src="./js/detailed/detailed-citation.js"></script>
+    <script src="./js/detailed/detailed-figures.js"></script>
+    <script src="./js/detailed/detailed-formulas.js"></script>
+    <script src="./js/detailed/detailed-text.js"></script>
+    <script src="./js/detailed/detailed-overview.js"></script>
+    <script src="./js/detailed/detailed.js"></script>
 
     <!-- Detailed View Necessary Imports End -->
 </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <a class="navbar-brand" href="#" id="project-brand"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </nav>
+<body class="no-mathjax">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#" id="project-brand"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</nav>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item" aria-current="page"><a href="/dashboard.html">Dashboard</a></li>
-            <li class="breadcrumb-item" aria-current="page" id="breadcrumb-folder-name"></li>
-            <li class="breadcrumb-item" aria-current="page" id="breadcrumb-file-name"></li>
-            <li class="breadcrumb-item active" aria-current="page">Detailed Comparison</li>
-        </ol>
-    </nav>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item" aria-current="page"><a href="/dashboard.html">Dashboard</a></li>
+        <li class="breadcrumb-item" aria-current="page" id="breadcrumb-folder-name"></li>
+        <li class="breadcrumb-item" aria-current="page" id="breadcrumb-file-name"></li>
+        <li class="breadcrumb-item active" aria-current="page">Detailed Comparison</li>
+    </ol>
+</nav>
 
-    <div id="body-page-infobox" class="alert d-none" role="alert">
-        This is an info box.
-    </div>
+<div id="body-page-infobox" class="alert d-none" role="alert">
+    This is an info box.
+</div>
 
-    <!-- Detailed View Body Start -->
-        <div id="detailed-view-wrapper">
-            <div id="detailed-view-controller">
+<!-- Detailed View Body Start -->
+<div id="detailed-view-wrapper">
+    <div id="detailed-view-navigation" class="row navigation ">
+        <div class="dropdown col-lg-2 col-md-6 col-12">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="detailed-view-document-selection-button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Document selection
+            </button>
+            <div class="dropdown-menu" id="detailed-view-document-selection-menu" aria-labelledby="detailed-view-document-selection">
             </div>
-            <div id="detailed-view-base-vis">
-                <p style="margin: 10px">Your detailed document comparison visualization goes in here and you should probably change the cheesy red background color as well. D3js, JQuery, bootstrap already preloaded here. Just check out what is available and whats not from this html page you should be free to add additional libraries as long as you are not going to change all the other html pages. You should be completely free to use this provided space however you like. You will probably need to divide that space according to your needs. Finally, you should be writing your code into the detailed.js javascript file but feel free to add additional modules when necessary. In detailed.js you will find that, you have necessary data already fetched for you thus only you will need to do is to just visualize that. You do not have to worry about how to fetch data from backend etc. Note that, if you can not find some data that you are looking for, let me know about it. I will check whether our system is capable of providing that particular data and open a new API to make it available to you as soon as possible.</p>
-            </div> 
         </div>
+        <ul class="nav nav-pills justify-content-end col-lg-10 col-md-6 col-12" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-Citations-tab" data-toggle="pill" href="#pills-Citations"
+                   role="tab" aria-controls="pills-Citations" aria-selected="true">Citations</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Math-tab" data-toggle="pill" href="#pills-Math" role="tab"
+                   aria-controls="pills-Math" aria-selected="false">Mathematical expressions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Text-tab" data-toggle="pill" href="#pills-Text" role="tab"
+                   aria-controls="pills-Text" aria-selected="false">Keywords</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Figures-tab" data-toggle="pill" href="#pills-Figures" role="tab"
+                   aria-controls="pills-Figures" aria-selected="false">Figures</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-Overview-tab" data-toggle="pill" href="#pills-Overview" role="tab"
+                   aria-controls="pills-Overview" aria-selected="false">Overview</a>
+            </li>
+        </ul>
+    </div>
+    <div id="detailed-view-base-vis">
+        <!-- Container for Citation Visualization -->
+        <div id="Citation-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column" style="flex:3">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>SELECTED ALGORITHMS</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="citation-algorithms">
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="cc-checkbox" name="cc-checkbox" checked>
+                                <label class="label" for="cc-checkbox">cc</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Citation chunking identifies citation patterns regardless of potential transpositions and/or scaling. Is used to detect Shake and Paste plagiarism.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="gct-checkbox" name="gct-checkbox" checked>
+                                <label class="label" for="gct-checkbox">gct</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>GCT links individually longest citation matches into tiles. </title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content" >
+                                <input type="checkbox" class="citation-algorithm-selection" id="lccs-checkbox" name="lccs-checkbox" checked>
+                                <label class="label" for="lccs-checkbox">lccs</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Identifies the longest contiguous series of citations common to a set of documents.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                            <div class="algorithm-content">
+                                <input type="checkbox" class="citation-algorithm-selection" id="lccsdist-checkbox" name="lccsdist-checkbox" checked>
+                                <label class="label" for="lccsdist-checkbox">lccsdist</label>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16px" height="16px"><title>Computes the Longest Common Citation Sequence that contains only distinct citations of two documents.</title><path fill="#8bb7f0" d="M7.5 0.5A7 7 0 1 0 7.5 14.5A7 7 0 1 0 7.5 0.5Z"/><path fill="#4e7ab5" d="M7.5,1C11.084,1,14,3.916,14,7.5S11.084,14,7.5,14S1,11.084,1,7.5S3.916,1,7.5,1 M7.5,0 C3.358,0,0,3.358,0,7.5S3.358,15,7.5,15S15,11.642,15,7.5S11.642,0,7.5,0L7.5,0z"/><path fill="#fff" d="M7.5 3.83A.67.67 0 1 0 7.5 5.17.67.67 0 1 0 7.5 3.83zM8 10L8 6 6.329 6 6.329 7 7 7 7 10 6 10 6 11 9 11 9 10z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="citation-legend" class="config-component">
+                    <div class="config-component-header citation-legend-heading">
+                        <p>LEGEND</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="citation-legend">
+                            <div class="citation-legend-entry ">
+                                <p class="legendExplanation"> Citation Match</p>
+                            </div>
+                            <div class="citation-legend-entry ">
+                                <p class="legendSrcDocument"> Selected Document Citation Context</p>
+                            </div>
+                            <div class="citation-legend-entry">
+                                <p class="legendTargetDocument"> Recommended Document Citation Context</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="citation-visualization-content" id="Citation-Content-Container">
+            </div>
+        </div>
+        <!-- Container for Math Visualization -->
+        <div id="Math-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>MATH SIMILARITY THRESHOLD</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="range-control range-wrap">
+                            <div class="range-value" id="math-slider-value"></div>
+                            <input id="formula-range-control-input"type="range" min="0" max="100" value="0" class="slider" name="visibilityRange">
+                        </div>
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>FORMULA-MATCH SIMILARITY SCORE</p>
+                    </div>
+                    <div class="config-component-body">
+                        <p id="formula-range-value">0.5</p>
+                    </div>
+                </div>
+                <div id="formula-legend" class="config-component">
+                    <div class="config-component-header">
+                        <p>LEGEND</p>
+                    </div>
+                    <div class="config-component-body">
+                       <div class="formula-legend">
+                           <div class="formula-legend-entry">
+                               <p class="identical"> Identical identifiers</p>
+                           </div>
+                           <div class="formula-legend-entry">
+                               <p class="similar"> Similar identifiers</p>
+                           </div>
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <div class="formulas-visualization">
+                <div id="formulas-visualization-nav-bubbles" ></div>
+                <div id="formulas-visualization-content" class="content-slider">
+            </div>
+            </div>
+        </div>
+        <!-- Container for Text Visualization -->
+        <div id="Text-Container" class="tab-content flex-column">
+            <button  id="text-help-button" type="button" class="btn btn-primary"> ? </button>
+            <div class="text-legend-container" id="text-legend-content">
+                    <div class="text-legend-container__color-scale"></div>
+                    <div class="text-legend-container__color-scale-legend">
+                        <span style="color: #ff0000">Shared Words</span><span style="color:rgb(0, 0, 255)">Unique Words</span>
+                    </div>
+                    <ul class="text-legend">
+                        <li><b>Shared words</b>: Words which appear in both documents</li>
+                        <li><b>Unique words</b>: Words which appear in one document but not the other</li>
+                        <li><b>Keywords</b>: Words which appear most frequent</li>
+                        <li>Font size corresponds to occurrence frequency</li>
+                    </ul>
+            </div>
+            <div id="text-columns-container" class="distribution">
+                <div class="column column--src-1"></div>
+                <div class="column column--src-2"></div>
+                <div class="column column--src-3"></div>
+                <div class="column column--src-4"></div>
+                <div class="column column--identical-5"></div>
+                <div class="column column--identical-4"></div>
+                <div class="column column--identical-3"></div>
+                <div class="column column--identical-2"></div>
+                <div class="column column--identical-1"></div>
+                <div class="column column--target-4"></div>
+                <div class="column column--target-3"></div>
+                <div class="column column--target-2"></div>
+                <div class="column column--target-1"></div>
+            </div>
+            <div class="text-footer">
+                <div class="source-keywords-footer"> Source document keywords</div>
+                <div class="shared-keywords-footer"> Shared keywords</div>
+                <div class="recommendation-keywords-footer"> Recommendation document keywords</div>
+            </div>
+        </div>
+        <!-- Container for Figure Visualization -->
+        <div id="Figures-Container" class="tab-content flex-container">
+            <div class="panel-left flex-column">
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>FIGURE SIMILARITY THRESHOLD</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="range-control range-wrap">
+                            <div class="range-value" id="figure-slider-value"></div>
+                            <input id="figure-similarity-input" type="range" min="0" max="100" value="0" class="slider" name="visibilityRange">
+                        </div>
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>FIGURE-MATCH SIMILARITY SCORE</p>
+                    </div>
+                    <div class="config-component-body">
+                        <p id="range-value"></p>
+                    </div>
+                </div>
+                <div class="config-component">
+                    <div class="config-component-header">
+                        <p>SIMILARITY REGION HEATMAP</p>
+                    </div>
+                    <div class="config-component-body">
+                        <input type="checkbox" id="heatmap-overlay-checkbox" name="heatmap-overlay-checkbox">
+                    </div>
+                </div>
+        </div>
+            <div class="figures-visualization">
+                <div id="figure-visualization-nav-bubbles" ></div>
+
+                <div id="figure-visualization-content" class="content-slider">
+                </div>
+            </div>
+        </div>
+        <!-- Container for the overview -->
+        <div id="Overview-Container" class="tab-content overview-content">
+            <div class="panel-left flex-column">
+                <div id="overview-legend" class="config-component">
+                    <div class="config-component-header">
+                        <p>LEGEND</p>
+                    </div>
+                    <div class="config-component-body">
+                        <div class="overview-legend">
+                            <div class="overview-legend-entry">
+                                <p class="overview-root"> Recommended Document</p>
+                            </div>
+                            <div class="overview-legend-entry">
+                                <p class="overview-inner"> Comparison Features</p>
+                            </div>
+                            <div class="overview-legend-entry">
+                                <p class="overview-leaf"> Feature Algorithms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="overview-svg-container" class="overview-visualization">
+
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Detailed View Body End -->
 </body>
 

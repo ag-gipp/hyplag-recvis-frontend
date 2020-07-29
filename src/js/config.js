@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://recvisbackend.birkankolcu.com';
+const BACKEND_URL = "http://a25a1813ca19.eu.ngrok.io";
 
 /* HYPLAG
 const GLOBAL_FRONT_END_CONFIG = {
